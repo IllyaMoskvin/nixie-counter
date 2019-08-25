@@ -236,46 +236,42 @@ long getNextNumber()
     return 500001;
   }
 
-  // This will send the request to the server
-  client.print(
-    String("GET ") + api_path + " HTTP/1.1\r\n" +
-    "Host: " + api_host + "\r\n" +
-    "Connection: close\r\n\r\n"
-  );
-
-  // Requires trailing \n in body to avoid delay:
-  // https://forum.arduino.cc/index.php?topic=529440.30
-  bool lastCharWasNewline = false;
-  bool hasJsonStarted = false;
-  String json = "";
-
-  while (client.connected()) {
-    if (client.available()) {
-      char c = client.read();
-      Serial.print(c);
-      hasJsonStarted = hasJsonStarted || (lastCharWasNewline && (c == '{'));
-      lastCharWasNewline = (c == '\n');
-      if (hasJsonStarted) {
-        json += c;
-      }
-    }
+  // https://arduinojson.org/v6/example/http-client/
+  client.println(String("GET ") + api_path + " HTTP/1.1");
+  client.println(String("Host: ") + api_host);
+  client.println(F("Connection: close"));
+  if (client.println() == 0) {
+    Serial.println(F("Failed to send request"));
+    return 0;
   }
-
-  Serial.println();
-
-  if (!hasJsonStarted) {
-    return 500002;
+  
+  char status[32] = {0};
+  client.readBytesUntil('\r', status, sizeof(status));
+  if (strcmp(status, "HTTP/1.1 200 OK") != 0) {
+    Serial.print(F("Unexpected response: "));
+    Serial.println(status);
+    return 1;
   }
-
+  
+  char endOfHeaders[] = "\r\n\r\n";
+  if (!client.find(endOfHeaders)) {
+    Serial.println(F("Invalid response"));
+    return 1;
+  }
+  
   DynamicJsonDocument doc(250);
 
-  DeserializationError error = deserializeJson(doc, json);
+  // May require trailing \n in body to avoid delay:
+  // https://forum.arduino.cc/index.php?topic=529440.30
+  DeserializationError error = deserializeJson(doc, client);
 
   if (error) {
     return 500003;
   }
 
   long total = doc["pagination"]["total"];
+
+  client.stop();
 
   return total;
 }
