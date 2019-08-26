@@ -81,9 +81,11 @@ void loop()
 
         shouldScroll = ipDigitCount > 6;
 
+        // TODO: Is left-aligned the right choice for IPs?
         scrollState = SCROLL_REST_LEFT;
         isScrollResting = true;
         scrollOffset = 0;
+        scrollUpdatedAt = millis();
       }
 
       Serial.println(ip);
