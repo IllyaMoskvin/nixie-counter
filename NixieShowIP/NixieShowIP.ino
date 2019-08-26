@@ -11,13 +11,13 @@ const int oePin = 16;
 const unsigned long ipCheckInterval = 5000;
 unsigned long ipCheckedAt;
 
-const unsigned long displayRefreshInterval = 50;
+const unsigned long displayRefreshInterval = 15;
 unsigned long displayRefreshedAt;
 
 bool shouldScroll = false;
 
 const unsigned long scrollRestInterval = 2500;
-const unsigned long scrollTickInterval = 75;
+const unsigned long scrollTickInterval = 125;
 unsigned long scrollUpdatedAt;
 
 const int SCROLL_REST_LEFT = 0;
