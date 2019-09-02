@@ -57,9 +57,9 @@
     <form action="/update" method="get">
         <div>
             <label for="host">Host</label>
-            <input type="text" name="host" value="nocache.aggregator-data.artic.edu"/>
+            <input type="text" name="host" value="%s" maxlength="39"/>
             <label for="path">Path</label>
-            <input type="text" name="path" value="/api/v1/artworks/search?cache=false&query[range][timestamp][gte]=now-1d"/>
+            <input type="text" name="path" value="%s" maxlength="254"/>
         </div>
         <input type="submit" value="Update"/>
     </form>
