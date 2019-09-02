@@ -1,5 +1,6 @@
 // https://randomnerdtutorials.com/wifimanager-with-esp8266-autoconnect-custom-parameter-and-manage-your-ssid-and-password/
 // https://randomnerdtutorials.com/esp8266-web-server/
+// https://github.com/esp8266/Arduino/tree/master/libraries/ESP8266WebServer
 #include <NixieDriver_ESP.h>
 #include <ESP8266WiFi.h>
 
@@ -18,10 +19,16 @@ unsigned long displayRefreshedAt;
 nixie_esp nixie(dataPin, clockPin);
 
 // Set web server port number to 80
-WiFiServer server(80);
+ESP8266WebServer server(80);
 
 // Variable to store the HTTP request
 String header;
+
+// Minify, then replace " with \", and % with %% in CSS, but keep %s in form
+const char* indexHtml = "<!DOCTYPE html><html><head> <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"> <link rel=\"icon\" href=\"data:,\"> <title>Nixie</title> <link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css\"/> <link href=\"https://fonts.googleapis.com/css?family=Nixie+One&display=swap\" rel=\"stylesheet\"> <style>*{box-sizing: border-box;}html{background: #ddd; font-family: sans-serif; text-align: center;}div{padding-top: 1.5em; background: #eee; border-top: 3px solid #ccc; border-bottom: 3px solid #ccc;}h1{padding: 2rem; font-size: 2rem; font-weight: 600; font-family: 'Nixie One', sans-serif;}label{display: block; margin-bottom: 0.5rem; margin-left: 1rem; text-align: left;}input[type=text]{width: 100%%; margin-bottom: 1.5rem; padding: .75rem 1rem; border: none; color: #555; font-size: .9rem;}input[type=submit]{cursor: pointer; margin: 1.5em; padding: .5rem 2rem; background: #636363; border: none; color: #fff; font-size: 1rem;}</style></head><body> <h1>Nixie</h1> <form action=\"/update\" method=\"get\"> <div> <label for=\"host\">Host</label> <input type=\"text\" name=\"host\" value=\"%s\"/> <label for=\"path\">Path</label> <input type=\"text\" name=\"path\" value=\"%s\"/> </div><input type=\"submit\" value=\"Update\"/> </form></body></html>";
+
+char api_host[40] = "nocache.aggregator-data.artic.edu";
+char api_path[255] = "/api/v1/artworks/search?cache=false&query[range][timestamp][gte]=now-1d";
 
 void setup()
 {
@@ -38,7 +45,6 @@ void setup()
   pinMode(oePin, OUTPUT);
   digitalWrite(oePin, HIGH);
 
-  // WiFiManager
   // Local intialization. Once its business is done, there is no need to keep it around
   WiFiManager wifiManager;
   
@@ -58,66 +64,36 @@ void setup()
 
   Serial.println(WiFi.localIP());
   
+  // Bind routes
+  server.on("/", handleRoot);
+  server.onNotFound(handleNotFound);
+  
   server.begin();
 }
 
 void loop()
 {
-  runServer();
+  server.handleClient();
 }
 
-void runServer()
-{
-  WiFiClient client = server.available();   // Listen for incoming clients
+void handleRoot() {
+  char temp[2000];
+  snprintf(temp, sizeof(temp), indexHtml, api_host, api_path);
+  server.send(200, "text/html", temp);
+}
 
-  if (client) {                             // If a new client connects,
-    Serial.println("New Client.");          // print a message out in the serial port
-    String currentLine = "";                // make a String to hold incoming data from the client
-    while (client.connected()) {            // loop while the client's connected
-      if (client.available()) {             // if there's bytes to read from the client,
-        char c = client.read();             // read a byte, then
-        Serial.write(c);                    // print it out the serial monitor
-        header += c;
-        if (c == '\n') {                    // if the byte is a newline character
-          // if the current line is blank, you got two newline characters in a row.
-          // that's the end of the client HTTP request, so send a response:
-          if (currentLine.length() == 0) {
-            // HTTP headers always start with a response code (e.g. HTTP/1.1 200 OK)
-            // and a content-type so the client knows what's coming, then a blank line:
-            client.println("HTTP/1.1 200 OK");
-            client.println("Content-type:text/html");
-            client.println("Connection: close");
-            client.println();
-            
-            // Display the HTML web page
-            client.println("<!DOCTYPE html><html>");
-            client.println("<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
-            client.println("<link rel=\"icon\" href=\"data:,\">");
-            client.println("<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}</style>");
-            client.println("</head>");
-            
-            // Web Page Heading
-            client.println("<body><h1>ESP8266 Web Server</h1>");
-            
-            client.println("</body></html>");
-            
-            // The HTTP response ends with another blank line
-            client.println();
-            // Break out of the while loop
-            break;
-          } else { // if you got a newline, then clear currentLine
-            currentLine = "";
-          }
-        } else if (c != '\r') {  // if you got anything else but a carriage return character,
-          currentLine += c;      // add it to the end of the currentLine
-        }
-      }
-    }
-    // Clear the header variable
-    header = "";
-    // Close the connection
-    client.stop();
-    Serial.println("Client disconnected.");
-    Serial.println("");
+// https://github.com/esp8266/Arduino/blob/e9d052c/libraries/ESP8266WebServer/examples/HelloServer/HelloServer.ino#L24
+void handleNotFound() {
+  String message = "File Not Found\n\n";
+  message += "URI: ";
+  message += server.uri();
+  message += "\nMethod: ";
+  message += (server.method() == HTTP_GET) ? "GET" : "POST";
+  message += "\nArguments: ";
+  message += server.args();
+  message += "\n";
+  for (uint8_t i = 0; i < server.args(); i++) {
+    message += " " + server.argName(i) + ": " + server.arg(i) + "\n";
   }
+  server.send(404, "text/plain", message);
 }

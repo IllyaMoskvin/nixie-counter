@@ -41,7 +41,7 @@
             color: #555;
             font-size: .9rem;
         }
-        input[type=button] {
+        input[type=submit] {
             cursor: pointer;
             margin: 1.5em;
             padding: .5rem 2rem;
@@ -54,12 +54,14 @@
 </head>
 <body>
     <h1>Nixie</h1>
-    <div>
-        <label for="host">Host</label>
-        <input type="text" name="host" value="nocache.aggregator-data.artic.edu"/>
-        <label for="path">Path</label>
-        <input type="text" name="path" value="/api/v1/artworks/search?cache=false&query[range][timestamp][gte]=now-1d"/>
-    </div>
-    <input type="button" value="Update"/>
+    <form action="/update" method="get">
+        <div>
+            <label for="host">Host</label>
+            <input type="text" name="host" value="nocache.aggregator-data.artic.edu"/>
+            <label for="path">Path</label>
+            <input type="text" name="path" value="/api/v1/artworks/search?cache=false&query[range][timestamp][gte]=now-1d"/>
+        </div>
+        <input type="submit" value="Update"/>
+    </form>
 </body>
 </html>
