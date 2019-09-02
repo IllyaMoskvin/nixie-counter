@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="data:,">
+    <title>Nixie</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css" />
+    <link href="https://fonts.googleapis.com/css?family=Nixie+One&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        html {
+            background: #ddd;
+            font-family: sans-serif;
+            text-align: center;
+        }
+        div {
+            padding-top: 1.5em;
+            background: #eee;
+            border-top: 3px solid #ccc;
+            border-bottom: 3px solid #ccc;
+        }
+        h1 {
+            padding: 2rem;
+            font-size: 2rem;
+            font-weight: 600;
+            font-family: 'Nixie One', sans-serif;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            margin-left: 1rem;
+            text-align: left;
+        }
+        input[type=text] {
+            width: 100%;
+            margin-bottom: 1.5rem;
+            padding: .75rem 1rem;
+            border: none;
+            color: #555;
+            font-size: .9rem;
+        }
+        input[type=button] {
+            cursor: pointer;
+            margin: 1.5em;
+            padding: .5rem 2rem;
+            background: #636363;
+            border: none;
+            color: #fff;
+            font-size: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>Nixie</h1>
+    <div>
+        <label for="host">Host</label>
+        <input type="text" name="host" value="nocache.aggregator-data.artic.edu"/>
+        <label for="path">Path</label>
+        <input type="text" name="path" value="/api/v1/artworks/search?cache=false&query[range][timestamp][gte]=now-1d"/>
+    </div>
+    <input type="button" value="Update"/>
+</body>
+</html>
