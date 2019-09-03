@@ -220,7 +220,6 @@ void handleRoot()
 {
   char temp[2000];
   snprintf(temp, sizeof(temp), indexHtml, apiHost, apiPath);
-  server.sendHeader("Connection", "close");
   server.send(200, "text/html", temp);
 }
 
@@ -260,7 +259,6 @@ void sendUpdate(const int code, const char *message)
 {
   char temp[1000];
   snprintf(temp, sizeof(temp), updateHtml, message);
-  server.sendHeader("Connection", "close");
   server.send(code, "text/html", temp);
 }
 
@@ -278,7 +276,6 @@ void handleNotFound()
   for (uint8_t i = 0; i < server.args(); i++) {
     message += " " + server.argName(i) + ": " + server.arg(i) + "\n";
   }
-  server.sendHeader("Connection", "close");
   server.send(404, "text/plain", message);
 }
 
