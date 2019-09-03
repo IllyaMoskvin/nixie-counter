@@ -1,32 +1,39 @@
+// ====================================================================================================================
+// Libraries.
+// ====================================================================================================================
+
+// https://doayee.co.uk/nixie/library/
 #include <NixieDriver_ESP.h>
-#include <ArduinoJson.h>
 #include <ESP8266WiFi.h>
-#include <WiFiClientSecure.h>
 #include <EEPROM.h>
 
+// https://arduinojson.org/v6/example/http-client/
+#include <WiFiClientSecure.h>
+#include <ArduinoJson.h>
+
+// https://github.com/tzapu/WiFiManager
 #include <DNSServer.h>
 #include <ESP8266WebServer.h>
 #include <WiFiManager.h>
 
-/**
-   Error code reference:
-   500001 = cannot connect to host via port
-   500002 = did not receive a json response
-   500003 = could not parse the json
-*/
 
-const int nixieDigits[] = {1, 6, 2, 7, 5, 0, 4, 9, 8, 3};
+// ====================================================================================================================
+// Error codes. Displayed left-aligned, filled with BLANK.
+// ====================================================================================================================
 
-// All of our requests use HTTPS
-const int api_port = 443;
+const int ERROR_CONNECTION_FAILED = 1; // cannot connect to API host via port
+const int ERROR_REQUEST_FAILED = 2; // cannot send request to API
+const int ERROR_RESPONSE_UNEXPECTED = 3; // first line of API response was not HTTP/1.1 200 OK
+const int ERROR_RESPONSE_INVALID = 4; // cannot find the end of headers in API response
+const int ERROR_PARSE_JSON = 5; // cannot parse valid json from API response
 
-// Config values stored in EEPROM
-char api_host[40];
-char api_path[255];
 
-// Helpers for storing values in EEPROM
-char mem_end_def[2 + 1] = "OK";
-char mem_end_cur[sizeof(mem_end_def)];
+// ====================================================================================================================
+// Global variables.
+// ====================================================================================================================
+
+// Stack of digits in each tube, used to determine digit depth for animations
+const int nixieDigitStack[] = {1, 6, 2, 7, 5, 0, 4, 9, 8, 3};
 
 // Pinouts
 const int dataPin = 12;
@@ -34,45 +41,74 @@ const int clockPin = 14;
 const int oePin = 16;
 const int btnPin = 13;
 
-long prevNumber = 0;
-long currentNumber = 0;
-long nextNumber = 0;
+nixie_esp nixie(dataPin, clockPin);
 
-int prevNumberSegments[] = {0, 0, 0, 0, 0, 0};
-int currentNumberSegments[] = {0, 0, 0, 0, 0, 0};
-int nextNumberSegments[] = {0, 0, 0, 0, 0, 0};
+// Serve the config webserver via normal HTTP
+ESP8266WebServer server(80);
 
-const bool renderUsingSegments = true;
+// Minify, then replace " with \", and % with %% in CSS, but keep %s in form
+const char* indexHtml = "<!DOCTYPE html><html><head> <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"> <link rel=\"icon\" href=\"data:,\"> <title>Nixie</title> <link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css\"/> <link href=\"https://fonts.googleapis.com/css?family=Nixie+One&display=swap\" rel=\"stylesheet\"> <style>*{box-sizing: border-box;}html{background: #ddd; font-family: sans-serif; text-align: center;}div{padding-top: 1.5em; background: #eee; border-top: 3px solid #ccc; border-bottom: 3px solid #ccc;}h1{padding: 2rem; font-size: 2rem; font-weight: 600; font-family: 'Nixie One', sans-serif;}label{display: block; margin-bottom: 0.5rem; margin-left: 1rem; text-align: left;}input[type=text]{width: 100%%; margin-bottom: 1.5rem; padding: .75rem 1rem; border: none; color: #555; font-size: .9rem;}input[type=submit]{cursor: pointer; margin: 1.5em; padding: .5rem 2rem; background: #636363; border: none; color: #fff; font-size: 1rem;}</style></head><body> <h1>Nixie</h1> <form action=\"/update\" method=\"get\"> <div> <label for=\"host\">Host</label> <input type=\"text\" name=\"host\" value=\"%s\" maxlength=\"39\" required/> <label for=\"path\">Path</label> <input type=\"text\" name=\"path\" value=\"%s\" maxlength=\"254\" required/> </div><input type=\"submit\" value=\"Update\"/> </form></body></html>";
+const char* updateHtml = "<!DOCTYPE html><html><head> <meta http-equiv=\"refresh\" content=\"5; URL=/\"/> <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"> <link rel=\"icon\" href=\"data:,\"> <title>Nixie</title> <link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css\"/> <link href=\"https://fonts.googleapis.com/css?family=Nixie+One&display=swap\" rel=\"stylesheet\"> <style>*{box-sizing: border-box;}html{background: #ddd; font-family: sans-serif; text-align: center;}h1{padding: 2rem; font-size: 2rem; font-weight: 600; font-family: 'Nixie One', sans-serif;}</style></head><body> <h1>%s</h1> <h2>Returning to form...</h2></body></html>";
 
-bool wifiManagerStarted = false;
+// Generally, host could be up to 254 = 253 max for domain + 1 for null terminator
+// https://webmasters.stackexchange.com/questions/16996/maximum-domain-name-length
+const char apiHostDefault[40] = "nocache.aggregator-data.artic.edu";
+const char apiPathDefault[255] = "/api/v1/artworks/search?cache=false&query[range][timestamp][gte]=now-1d";
 
-const unsigned long numberSetInterval = 5000;
-const unsigned long numberUpdateInterval = 75;
-const unsigned long displayRefreshInterval = 20;
-const unsigned long buttonCheckInterval = 2000;
+// Config values stored in EEPROM, with defaults above
+char apiHost[40];
+char apiPath[255];
+
+// Helpers for storing values in EEPROM
+const char memEndDefined[2 + 1] = "OK";
+char memEndCurrent[sizeof(memEndDefined)];
+
+// All outbound requests to API use HTTPS
+const int apiPort = 443;
+
+int currentDots[] = {0, 0, 0, 0, 0, 0};
+int currentDigits[] = {0, 0, 0, 0, 0, 0};
+int nextDigits[] = {0, 0, 0, 0, 0, 0};
+
+const unsigned long numberSetInterval = 5000; // how often to query the API
+const unsigned long numberUpdateInterval = 75; // time between each frame of animation
+const unsigned long displayRefreshInterval = 20; // minor throttle to prevent flicker
 
 unsigned long numberSetAt;
 unsigned long numberUpdatedAt;
 unsigned long displayRefreshedAt;
-unsigned long buttonCheckedAt;
 
-nixie_esp nixie(dataPin, clockPin);
 
-// Function declarations
-void runWiFiManager();
+
+// ====================================================================================================================
+// Function declarations for compiler weirdness.
+// ====================================================================================================================
+
+void setup();
+void loop();
+void initWiFiManager();
 void configModeCallback (WiFiManager *myWiFiManager);
 void saveConfigCallback();
-void loadParams();
-void saveParams();
-long getNextNumber();
+void handleRoot();
+void handleUpdate();
+void sendUpdate(const int code, const char *message);
+void handleNotFound();
+void loadParamsFromEEPROM();
+void saveParamsFromEEPROM();
+void throwError(const int errorCode);
+void setNextNumber();
 void setCurrentNumber();
-void setCurrentNumberShift(bool individually);
-bool isCurrentSegmentsIdenticalToNextSegments();
-void getDigitIndexes(int numberSegments[], int digitIndexes[]);
-int getDigitIndex(int value);
-void getSegmentedNumber(long num, int seg[]);
+bool isCurrentNumberIdenticalToNextNumber();
+void getDigitDepths(int digits[], int digitDepths[]);
+int getDigitDepth(int value);
+void setDigitsFromNumber(long num, int seg[]);
 void nixieDisplay(long num);
 void nixieDisplay(int seg[]);
+
+
+// ====================================================================================================================
+// Main program.
+// ====================================================================================================================
 
 void setup()
 {
@@ -91,36 +127,29 @@ void setup()
 
   pinMode(btnPin, INPUT_PULLUP);
 
-  // Uncomment and reset a couple times to forget saved WiFi credentials:
-  // https://arduino.stackexchange.com/questions/52059/does-the-esp8266-somehow-remember-wifi-access-data
-  // https://github.com/esp8266/Arduino/issues/1094
-  // ESP.eraseConfig();
+  // Run WiFiManager in autoconnect mode
+  initWiFiManager(true);
 
-  loadParams(); // For api_host and api_path
+  // Access this IP via HTTP to see the control panel
+  Serial.println(WiFi.localIP().toString());
+
+  // Params persist between restarts
+  loadParamsFromEEPROM();
+
+  // Bind routes
+  server.on("/", handleRoot);
+  server.on("/update", handleUpdate);
+  server.onNotFound(handleNotFound);
+
+  server.begin();
 }
 
 void loop()
 {
-  // WiFiManger is blocking, but we use a toggle button
-  if (millis() - buttonCheckedAt > buttonCheckInterval) {
-    if (digitalRead(btnPin) == LOW && !wifiManagerStarted) {
-      wifiManagerStarted = true;
-      runWiFiManager();
-    }
-    if (digitalRead(btnPin) == HIGH && wifiManagerStarted) {
-      wifiManagerStarted = false;
-    }
-  }
+  server.handleClient();
 
   if (millis() - numberSetAt > numberSetInterval) {
-    prevNumber = currentNumber;
-    nextNumber = getNextNumber();
-
-    memcpy(prevNumberSegments, currentNumberSegments, sizeof(currentNumberSegments));
-    getSegmentedNumber(nextNumber, nextNumberSegments);
-
-    Serial.println(nextNumber);
-
+    setNextNumber();
     numberSetAt = millis();
   }
 
@@ -130,44 +159,45 @@ void loop()
   }
 
   if (millis() - displayRefreshedAt > displayRefreshInterval) {
-    if (renderUsingSegments) {
-      nixieDisplay(currentNumberSegments);
-    } else {
-      nixieDisplay(currentNumber);
-    }
-
+    nixieDisplay(currentDigits);
     displayRefreshedAt = millis();
   }
 }
 
 
-void runWiFiManager()
+// ====================================================================================================================
+// Run WiFiManager to define which WiFi network to use.
+// ====================================================================================================================
+
+void initWiFiManager(const bool shouldAutoConnect)
 {
+  // Local intialization: once its business is done, there is no need to keep it around
   WiFiManager wifiManager;
 
-  WiFiManagerParameter param_api_host("api_host", "API Host", api_host, sizeof(api_host));
-  WiFiManagerParameter param_api_path("api_path", "API Path", api_path, sizeof(api_path));
-
-  wifiManager.addParameter(&param_api_host);
-  wifiManager.addParameter(&param_api_path);
-
-  wifiManager.setAPCallback(configModeCallback);
-  wifiManager.setSaveConfigCallback(saveConfigCallback);
+  // Uncomment and run once, if you want to erase stored WiFi credentials
+  // wifiManager.resetSettings();
 
   // Check "Network Connections > Wi-Fi > Properties > TCP/IPv4 > Properties"
   wifiManager.setAPStaticIPConfig(IPAddress(10, 0, 0, 1), IPAddress(10, 0, 0, 1), IPAddress(255, 255, 255, 0));
 
-  wifiManager.startConfigPortal("Nixie");
+  wifiManager.setAPCallback(configModeCallback);
+  wifiManager.setSaveConfigCallback(saveConfigCallback);
 
-  strcpy(api_host, param_api_host.getValue());
-  strcpy(api_path, param_api_path.getValue());
+  // Fetches ssid and pass for WiFi from EEPROM
+  // For auto connect, config portal is not persistent if WiFi credentials are valid
+  // Goes into a blocking loop until its config form is submitted
+  if (shouldAutoConnect) {
+    wifiManager.autoConnect("Nixie");
+  } else {
+    wifiManager.startConfigPortal("Nixie");
+  }
 
-  saveParams();
+  // If you get here, you have connected to the WiFi
+  Serial.println("Connected.");
 }
 
 void configModeCallback (WiFiManager *myWiFiManager)
 {
-  // TODO: Is this an off-by-one error?
   nixie.setDecimalPoint(2, true);
   nixie.setDecimalPoint(3, true);
   nixie.setDecimalPoint(4, true);
@@ -182,83 +212,165 @@ void saveConfigCallback()
 }
 
 
-// Functions to persist data between resets
-// http://arduino.esp8266.com/Arduino/versions/2.0.0/doc/libraries.html#eeprom
-// https://github.com/esp8266/Arduino/blob/4897e00/libraries/DNSServer/examples/CaptivePortalAdvanced/credentials.ino
-// http://forum.arduino.cc/index.php?topic=189144.0
-// TODO: Cycle EEPROM start point?
-// TODO: Use arrays of pointers?
+// ====================================================================================================================
+// Handle ESP8266WebServer requests to configure API queries.
+// ====================================================================================================================
 
-void loadParams()
+void handleRoot()
 {
-  EEPROM.begin(sizeof(api_host) + sizeof(api_path) + sizeof(mem_end_cur));
-  EEPROM.get(0, api_host);
-  EEPROM.get(0 + sizeof(api_host), api_path);
-  EEPROM.get(0 + sizeof(api_host) + sizeof(api_path), mem_end_cur);
+  char temp[2000];
+  snprintf(temp, sizeof(temp), indexHtml, apiHost, apiPath);
+  server.send(200, "text/html", temp);
+}
+
+void handleUpdate()
+{
+  if (!server.hasArg("host") || !server.hasArg("path")) {
+    return sendUpdate(400, "Missing param.");
+  }
+
+  const String & apiHostNew = server.arg("host");
+  const String & apiPathNew = server.arg("path");
+
+  if (apiHostNew == apiHost && apiPathNew == apiPath) {
+    return sendUpdate(400, "Params not changed.");
+  }
+
+  if (apiHostNew.length() == 0 || apiPathNew.length() == 0) {
+    return sendUpdate(400, "Param is empty.");
+  }
+
+  Serial.print("New host: ");
+  Serial.println(apiHostNew);
+
+  Serial.print("New path: ");
+  Serial.println(apiPathNew);
+
+  apiHostNew.toCharArray(apiHost, sizeof(apiHost));
+  apiPathNew.toCharArray(apiPath, sizeof(apiPath));
+
+  saveParamsToEEPROM();
+
+  return sendUpdate(200, "Success.");
+}
+
+// https://majenko.co.uk/blog/evils-arduino-strings
+void sendUpdate(const int code, const char *message)
+{
+  char temp[1000];
+  snprintf(temp, sizeof(temp), updateHtml, message);
+  server.send(code, "text/html", temp);
+}
+
+// https://github.com/esp8266/Arduino/blob/e9d052c/libraries/ESP8266WebServer/examples/HelloServer/HelloServer.ino#L24
+void handleNotFound()
+{
+  String message = "File Not Found\n\n";
+  message += "URI: ";
+  message += server.uri();
+  message += "\nMethod: ";
+  message += (server.method() == HTTP_GET) ? "GET" : "POST";
+  message += "\nArguments: ";
+  message += server.args();
+  message += "\n";
+  for (uint8_t i = 0; i < server.args(); i++) {
+    message += " " + server.argName(i) + ": " + server.arg(i) + "\n";
+  }
+  server.send(404, "text/plain", message);
+}
+
+
+// ====================================================================================================================
+// Persist data between resets using EEPROM.
+// ====================================================================================================================
+
+// https://arduino-esp8266.readthedocs.io/en/2.5.2/libraries.html#eeprom
+// https://github.com/esp8266/Arduino/blob/4897e00/libraries/DNSServer/examples/CaptivePortalAdvanced/credentials.ino
+// TODO: Cycle EEPROM start point?
+// https://blog.hackster.io/eeprom-rotation-for-the-esp8266-and-esp32-e42403b11df0
+// TODO: Use Filesystem instead?
+// https://arduino-esp8266.readthedocs.io/en/2.5.2/filesystem.html
+
+void loadParamsFromEEPROM()
+{
+  EEPROM.begin(sizeof(apiHost) + sizeof(apiPath) + sizeof(memEndCurrent));
+  EEPROM.get(0, apiHost);
+  EEPROM.get(0 + sizeof(apiHost), apiPath);
+  EEPROM.get(0 + sizeof(apiHost) + sizeof(apiPath), memEndCurrent);
   EEPROM.end();
 
-  // strcpy(mem_end_cur, "NO"); // Uncomment for testing?
+  // Uncomment to simulate EEPROM read fail:
+  // strcpy(memEndCurrent, "NO");
 
-  if (String(mem_end_cur) != String(mem_end_def)) {
-    Serial.println("Cannot load from EEPROM, using defaults...");
-    sprintf(api_path, "%s", "/api/v1/artworks/search?limit=0&cache=false");
-    sprintf(api_host, "%s", "nocache.aggregator-data.artic.edu");
-    saveParams();
+  if (String(memEndCurrent) != String(memEndDefined)) {
+    Serial.println("Failed to load params from EEPROM, using defaults...");
+    strcpy (apiHost, apiHostDefault);
+    strcpy (apiPath, apiPathDefault);
+    saveParamsToEEPROM();
   } else {
     Serial.println("Loaded params from EEPROM");
   }
 
   Serial.print("Host: ");
-  Serial.println(api_host);
+  Serial.println(apiHost);
 
   Serial.print("Path: ");
-  Serial.println(api_path);
+  Serial.println(apiPath);
 }
 
-void saveParams()
+void saveParamsToEEPROM()
 {
-  EEPROM.begin(sizeof(api_host) + sizeof(api_path) + sizeof(mem_end_def));
-  EEPROM.put(0, api_host);
-  EEPROM.put(0 + sizeof(api_host), api_path);
-  EEPROM.put(0 + sizeof(api_host) + sizeof(api_path), mem_end_def);
+  EEPROM.begin(sizeof(apiHost) + sizeof(apiPath) + sizeof(memEndDefined));
+  EEPROM.put(0, apiHost);
+  EEPROM.put(0 + sizeof(apiHost), apiPath);
+  EEPROM.put(0 + sizeof(apiHost) + sizeof(apiPath), memEndDefined);
   EEPROM.end();
 }
 
 
-long getNextNumber()
+// ====================================================================================================================
+// Error handling.
+// ====================================================================================================================
+void throwError(const int errorCode)
+{
+  const int errorDigits[] = {errorCode, BLANK, BLANK, BLANK, BLANK, BLANK};
+  memcpy(currentDigits, errorDigits, sizeof(errorDigits));
+  memcpy(nextDigits, errorDigits, sizeof(errorDigits));
+}
+
+// ====================================================================================================================
+// Query API for next number.
+// ====================================================================================================================
+
+void setNextNumber()
 {
   WiFiClientSecure client;
 
   // Turn off certificate and/or fingerprint checking
   client.setInsecure();
 
-  if (!client.connect(api_host, api_port)) {
-    return 500001;
+  if (!client.connect(apiHost, apiPort)) {
+    return throwError(ERROR_CONNECTION_FAILED);
   }
 
   // https://arduinojson.org/v6/example/http-client/
-  client.println(String("GET ") + api_path + " HTTP/1.1");
-  client.println(String("Host: ") + api_host);
+  client.println(String("GET ") + apiPath + " HTTP/1.1");
+  client.println(String("Host: ") + apiHost);
   client.println(F("Connection: close"));
   if (client.println() == 0) {
-    Serial.println(F("Failed to send request"));
-    return 0;
+    return throwError(ERROR_REQUEST_FAILED);
   }
-  
+
   char status[32] = {0};
   client.readBytesUntil('\r', status, sizeof(status));
   if (strcmp(status, "HTTP/1.1 200 OK") != 0) {
-    Serial.print(F("Unexpected response: "));
-    Serial.println(status);
-    return 1;
+    return throwError(ERROR_RESPONSE_UNEXPECTED);
   }
-  
-  char endOfHeaders[] = "\r\n\r\n";
-  if (!client.find(endOfHeaders)) {
-    Serial.println(F("Invalid response"));
-    return 1;
+
+  if (!client.find("\r\n\r\n")) {
+    return throwError(ERROR_RESPONSE_INVALID);
   }
-  
+
   DynamicJsonDocument doc(250);
 
   // May require trailing \n in body to avoid delay:
@@ -266,104 +378,78 @@ long getNextNumber()
   DeserializationError error = deserializeJson(doc, client);
 
   if (error) {
-    return 500003;
+    return throwError(ERROR_PARSE_JSON);
   }
 
   long total = doc["pagination"]["total"];
 
   client.stop();
 
-  return total;
+  setDigitsFromNumber(total, nextDigits);
 }
+
+
+// ====================================================================================================================
+// Update current number for the next time the display refreshes. Animate transition.
+// ====================================================================================================================
 
 void setCurrentNumber()
 {
-  setCurrentNumberShift(true);
-}
-
-void setCurrentNumberShift(bool individually)
-{
-  if (isCurrentSegmentsIdenticalToNextSegments()) {
+  if (isCurrentNumberIdenticalToNextNumber()) {
     return;
   }
 
-  int currentDigitIndexes[6];
-  int nextDigitIndexes[6];
+  int currentDigitDepths[6];
+  int nextDigitDepths[6];
 
-  getDigitIndexes(currentNumberSegments, currentDigitIndexes);
-  getDigitIndexes(nextNumberSegments, nextDigitIndexes);
+  getDigitDepths(currentDigits, currentDigitDepths);
+  getDigitDepths(nextDigits, nextDigitDepths);
 
   int signOfChange;
 
-  int resultNumberSegments[6];
+  int resultDigits[6];
 
-  int i; // Save this so we know when we called break for individually
+  int i; // Save this so we know when we called break
 
   for (i = 0; i < 6; i++) {
-    if (currentNumberSegments[i] == BLANK && nextNumberSegments[i] != BLANK) {
-      resultNumberSegments[i] = nixieDigits[0];
-      if (individually) break;
-      continue;
+    if (currentDigits[i] == BLANK && nextDigits[i] != BLANK) {
+      resultDigits[i] = nixieDigitStack[0];
+      break;
     }
 
-    if (currentNumberSegments[i] != BLANK && nextNumberSegments[i] == BLANK) {
-      if (currentDigitIndexes[i] == 0) {
-        resultNumberSegments[i] = BLANK;
-        if (individually) break;
-        continue;
+    if (currentDigits[i] != BLANK && nextDigits[i] == BLANK) {
+      if (currentDigitDepths[i] == 0) {
+        resultDigits[i] = BLANK;
+        break;
       }
 
-      resultNumberSegments[i] = nixieDigits[currentDigitIndexes[i] - 1];
-      if (individually) break;
-      continue;
+      resultDigits[i] = nixieDigitStack[currentDigitDepths[i] - 1];
+      break;
     }
 
-    if (currentNumberSegments[i] != nextNumberSegments[i]) {
-      signOfChange = nextDigitIndexes[i] < currentDigitIndexes[i] ? -1 : 1;
-      resultNumberSegments[i] = nixieDigits[currentDigitIndexes[i] + signOfChange];
-      if (individually) break;
-      continue;
+    if (currentDigits[i] != nextDigits[i]) {
+      signOfChange = nextDigitDepths[i] < currentDigitDepths[i] ? -1 : 1;
+      resultDigits[i] = nixieDigitStack[currentDigitDepths[i] + signOfChange];
+      break;
     }
 
-    resultNumberSegments[i] = currentNumberSegments[i];
+    resultDigits[i] = currentDigits[i];
   }
 
-  // Fill out digits unfilled due to breaking for individually
+  // Fill out digits unfilled due to breaking
   for (i = i + 1; i < 6; i++) {
-    resultNumberSegments[i] = currentNumberSegments[i];
+    resultDigits[i] = currentDigits[i];
   }
 
-  memcpy(currentNumberSegments, resultNumberSegments, sizeof(resultNumberSegments));
-
-  // If the number starts with a zero, we cannot save it to long
-  bool hasLeadingZero = true;
-
-  for (int i = 0; i < 6; i++) {
-    if (resultNumberSegments[i] == BLANK) {
-      continue;
-    }
-    hasLeadingZero = (resultNumberSegments[i] == 0);
-    break;
-  }
-
-  if (!hasLeadingZero) {
-    int resultNumber = 0;
-    for (int i = 0; i < 6; i++) {
-      if (resultNumberSegments[i] == BLANK) {
-        continue;
-      }
-      resultNumber += resultNumberSegments[i] * pow(10, 5 - i);
-    }
-    currentNumber = resultNumber;
-  }
+  memcpy(currentDigits, resultDigits, sizeof(resultDigits));
 }
 
-bool isCurrentSegmentsIdenticalToNextSegments()
+bool isCurrentNumberIdenticalToNextNumber()
 {
   bool isIdentical = true;
 
   for (int i = 0; i < 6; i++) {
-    if (currentNumberSegments[i] != nextNumberSegments[i]) {
+    if (currentDigits[i] != nextDigits[i]) {
       isIdentical = false;
       break;
     }
@@ -372,17 +458,17 @@ bool isCurrentSegmentsIdenticalToNextSegments()
   return isIdentical;
 }
 
-void getDigitIndexes(int numberSegments[], int digitIndexes[])
+void getDigitDepths(int digits[], int digitDepths[])
 {
   for (byte i = 0; i < 6; i++) {
-    digitIndexes[i] = getDigitIndex(numberSegments[i]);
+    digitDepths[i] = getDigitDepth(digits[i]);
   }
 }
 
-int getDigitIndex(int value)
+int getDigitDepth(int value)
 {
   for (int i = 0; i < 10; i++) {
-    if (nixieDigits[i] == value) {
+    if (nixieDigitStack[i] == value) {
       return i;
     }
   }
@@ -390,47 +476,46 @@ int getDigitIndex(int value)
   return BLANK;
 }
 
-void getSegmentedNumber(long num, int seg[])
+void setDigitsFromNumber(long number, int digits[])
 {
-  seg[0] = num / 100000;
-  seg[1] = (num / 10000) % 10;
-  seg[2] = (num / 1000) % 10;
-  seg[3] = (num / 100) % 10;
-  seg[4] = (num / 10) % 10;
-  seg[5] = (num % 10);
+  digits[0] = number / 100000;
+  digits[1] = (number / 10000) % 10;
+  digits[2] = (number / 1000) % 10;
+  digits[3] = (number / 100) % 10;
+  digits[4] = (number / 10) % 10;
+  digits[5] = (number % 10);
 
-  if (num < 10) {
-    seg[0] = BLANK;
-    seg[1] = BLANK;
-    seg[2] = BLANK;
-    seg[3] = BLANK;
-    seg[4] = BLANK;
-  } else if (num < 100) {
-    seg[0] = BLANK;
-    seg[1] = BLANK;
-    seg[2] = BLANK;
-    seg[3] = BLANK;
-  } else if (num < 1000) {
-    seg[0] = BLANK;
-    seg[1] = BLANK;
-    seg[2] = BLANK;
-  } else if (num < 10000) {
-    seg[0] = BLANK;
-    seg[1] = BLANK;
-  } else if (num < 100000) {
-    seg[0] = BLANK;
+  if (number < 10) {
+    digits[0] = BLANK;
+    digits[1] = BLANK;
+    digits[2] = BLANK;
+    digits[3] = BLANK;
+    digits[4] = BLANK;
+  } else if (number < 100) {
+    digits[0] = BLANK;
+    digits[1] = BLANK;
+    digits[2] = BLANK;
+    digits[3] = BLANK;
+  } else if (number < 1000) {
+    digits[0] = BLANK;
+    digits[1] = BLANK;
+    digits[2] = BLANK;
+  } else if (number < 10000) {
+    digits[0] = BLANK;
+    digits[1] = BLANK;
+  } else if (number < 100000) {
+    digits[0] = BLANK;
   }
 }
 
-// Override nixie_esp::disp to blank out digits instead of using zeroes
-void nixieDisplay(long num)
+void nixieDisplay(long number)
 {
-  int seg[6];
-  getSegmentedNumber(num, seg);
-  nixieDisplay(seg);
+  int digits[6];
+  setDigitsFromNumber(number, digits);
+  nixieDisplay(digits);
 }
 
-void nixieDisplay(int seg[])
+void nixieDisplay(int digits[])
 {
-  nixie.displayDigits(seg[0], seg[1], seg[2], seg[3], seg[4], seg[5]);
+  nixie.displayDigits(digits[0], digits[1], digits[2], digits[3], digits[4], digits[5]);
 }
