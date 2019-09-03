@@ -57,21 +57,21 @@ void setup()
   pinMode(oePin, OUTPUT);
   digitalWrite(oePin, HIGH);
 
-  // Local intialization. Once its business is done, there is no need to keep it around
+  // Local intialization: once its business is done, there is no need to keep it around
   WiFiManager wifiManager;
-  
-  // Uncomment and run it once, if you want to erase all the stored information
-  //wifiManager.resetSettings();
-  
+
+  // Uncomment and run once, if you want to erase stored WiFi credentials
+  // wifiManager.resetSettings();
+
   // Check "Network Connections > Wi-Fi > Properties > TCP/IPv4 > Properties"
   wifiManager.setAPStaticIPConfig(IPAddress(10, 0, 0, 1), IPAddress(10, 0, 0, 1), IPAddress(255, 255, 255, 0));
 
-  // fetches ssid and pass from eeprom and tries to connect
-  // if it does not connect it starts an access point with the specified name
-  // and goes into a blocking loop awaiting configuration
+  // Fetches ssid and pass from EEPROM and tries to connect to WiFi
+  // If it does not connect, it starts an access point with the specified name
+  // Goes into a blocking loop awaiting configuration
   wifiManager.autoConnect("Nixie");
-  
-  // if you get here you have connected to the WiFi
+
+  // If you get here, you have connected to the WiFi
   Serial.println("Connected.");
 
   // Access this IP via HTTP to see the control panel
@@ -84,7 +84,7 @@ void setup()
   server.on("/", handleRoot);
   server.on("/update", handleUpdate);
   server.onNotFound(handleNotFound);
-  
+
   server.begin();
 }
 
