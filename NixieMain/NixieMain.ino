@@ -137,8 +137,8 @@ void setup()
   loadParamsFromEEPROM();
 
   // Bind routes
-  server.on("/", handleRoot);
-  server.on("/update", handleUpdate);
+  server.on(F("/"), handleRoot);
+  server.on(F("/update"), handleUpdate);
   server.onNotFound(handleNotFound);
 
   server.begin();
@@ -151,6 +151,9 @@ void loop()
   if (millis() - numberSetAt > numberSetInterval) {
     setNextNumber();
     numberSetAt = millis();
+
+    // Uncomment to see remaining memory:
+    Serial.println(ESP.getFreeHeap());
   }
 
   if (millis() - numberUpdatedAt > numberUpdateInterval) {
@@ -193,7 +196,7 @@ void initWiFiManager(const bool shouldAutoConnect)
   }
 
   // If you get here, you have connected to the WiFi
-  Serial.println("Connected.");
+  Serial.println(F("Connected."));
 }
 
 void configModeCallback (WiFiManager *myWiFiManager)
@@ -220,17 +223,17 @@ void handleRoot()
 {
   char temp[2000];
   snprintf(temp, sizeof(temp), indexHtml, apiHost, apiPath);
-  server.send(200, "text/html", temp);
+  server.send(200, F("text/html"), temp);
 }
 
 void handleUpdate()
 {
-  if (!server.hasArg("host") || !server.hasArg("path")) {
+  if (!server.hasArg(F("host")) || !server.hasArg(F("path"))) {
     return sendUpdate(400, "Missing param.");
   }
 
-  const String & apiHostNew = server.arg("host");
-  const String & apiPathNew = server.arg("path");
+  const String & apiHostNew = server.arg(F("host"));
+  const String & apiPathNew = server.arg(F("path"));
 
   if (apiHostNew == apiHost && apiPathNew == apiPath) {
     return sendUpdate(400, "Params not changed.");
@@ -240,10 +243,10 @@ void handleUpdate()
     return sendUpdate(400, "Param is empty.");
   }
 
-  Serial.print("New host: ");
+  Serial.print(F("New host: "));
   Serial.println(apiHostNew);
 
-  Serial.print("New path: ");
+  Serial.print(F("New path: "));
   Serial.println(apiPathNew);
 
   apiHostNew.toCharArray(apiHost, sizeof(apiHost));
@@ -259,24 +262,24 @@ void sendUpdate(const int code, const char *message)
 {
   char temp[1000];
   snprintf(temp, sizeof(temp), updateHtml, message);
-  server.send(code, "text/html", temp);
+  server.send(code, F("text/html"), temp);
 }
 
 // https://github.com/esp8266/Arduino/blob/e9d052c/libraries/ESP8266WebServer/examples/HelloServer/HelloServer.ino#L24
 void handleNotFound()
 {
-  String message = "File Not Found\n\n";
-  message += "URI: ";
+  String message = F("File Not Found\n\n");
+  message += F("URI: ");
   message += server.uri();
-  message += "\nMethod: ";
-  message += (server.method() == HTTP_GET) ? "GET" : "POST";
-  message += "\nArguments: ";
+  message += F("\nMethod: ");
+  message += (server.method() == HTTP_GET) ? F("GET") : F("POST");
+  message += F("\nArguments: ");
   message += server.args();
-  message += "\n";
+  message += F("\n");
   for (uint8_t i = 0; i < server.args(); i++) {
     message += " " + server.argName(i) + ": " + server.arg(i) + "\n";
   }
-  server.send(404, "text/plain", message);
+  server.send(404, F("text/plain"), message);
 }
 
 
@@ -303,18 +306,18 @@ void loadParamsFromEEPROM()
   // strcpy(memEndCurrent, "NO");
 
   if (String(memEndCurrent) != String(memEndDefined)) {
-    Serial.println("Failed to load params from EEPROM, using defaults...");
+    Serial.println(F("Failed to load params from EEPROM, using defaults..."));
     strcpy (apiHost, apiHostDefault);
     strcpy (apiPath, apiPathDefault);
     saveParamsToEEPROM();
   } else {
-    Serial.println("Loaded params from EEPROM");
+    Serial.println(F("Loaded params from EEPROM"));
   }
 
-  Serial.print("Host: ");
+  Serial.print(F("Host: "));
   Serial.println(apiHost);
 
-  Serial.print("Path: ");
+  Serial.print(F("Path: "));
   Serial.println(apiPath);
 }
 
@@ -385,7 +388,7 @@ void setNextNumber()
     return throwError(ERROR_PARSE_JSON);
   }
 
-  long total = doc["pagination"]["total"];
+  long total = doc[F("pagination")][F("total")];
 
   client.stop();
 
