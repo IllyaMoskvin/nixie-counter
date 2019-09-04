@@ -358,16 +358,19 @@ void setNextNumber()
   client.println(String("Host: ") + apiHost);
   client.println(F("Connection: close"));
   if (client.println() == 0) {
+    client.stop();
     return throwError(ERROR_REQUEST_FAILED);
   }
 
   char status[32] = {0};
   client.readBytesUntil('\r', status, sizeof(status));
   if (strcmp(status, "HTTP/1.1 200 OK") != 0) {
+    client.stop();
     return throwError(ERROR_RESPONSE_UNEXPECTED);
   }
 
   if (!client.find("\r\n\r\n")) {
+    client.stop();
     return throwError(ERROR_RESPONSE_INVALID);
   }
 
@@ -378,6 +381,7 @@ void setNextNumber()
   DeserializationError error = deserializeJson(doc, client);
 
   if (error) {
+    client.stop();
     return throwError(ERROR_PARSE_JSON);
   }
 
