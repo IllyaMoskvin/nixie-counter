@@ -21,11 +21,11 @@
 // Error codes. Displayed left-aligned, filled with BLANK.
 // ====================================================================================================================
 
-const int ERROR_CONNECTION_FAILED = 1; // cannot connect to API host via port
-const int ERROR_REQUEST_FAILED = 2; // cannot send request to API
-const int ERROR_RESPONSE_UNEXPECTED = 3; // first line of API response was not HTTP/1.1 200 OK
-const int ERROR_RESPONSE_INVALID = 4; // cannot find the end of headers in API response
-const int ERROR_PARSE_JSON = 5; // cannot parse valid json from API response
+const byte ERROR_CONNECTION_FAILED = 1; // cannot connect to API host via port
+const byte ERROR_REQUEST_FAILED = 2; // cannot send request to API
+const byte ERROR_RESPONSE_UNEXPECTED = 3; // first line of API response was not HTTP/1.1 200 OK
+const byte ERROR_RESPONSE_INVALID = 4; // cannot find the end of headers in API response
+const byte ERROR_PARSE_JSON = 5; // cannot parse valid json from API response
 
 
 // ====================================================================================================================
@@ -33,13 +33,13 @@ const int ERROR_PARSE_JSON = 5; // cannot parse valid json from API response
 // ====================================================================================================================
 
 // Stack of digits in each tube, used to determine digit depth for animations
-const int nixieDigitStack[] = {1, 6, 2, 7, 5, 0, 4, 9, 8, 3};
+const byte nixieDigitStack[] = {1, 6, 2, 7, 5, 0, 4, 9, 8, 3};
 
 // Pinouts
-const int dataPin = 12;
-const int clockPin = 14;
-const int oePin = 16;
-const int btnPin = 13;
+const byte dataPin = 12;
+const byte clockPin = 14;
+const byte oePin = 16;
+const byte btnPin = 13;
 
 nixie_esp nixie(dataPin, clockPin);
 
@@ -66,9 +66,9 @@ char memEndCurrent[sizeof(memEndDefined)];
 // All outbound requests to API use HTTPS
 const int apiPort = 443;
 
-int currentDots[] = {0, 0, 0, 0, 0, 0};
-int currentDigits[] = {0, 0, 0, 0, 0, 0};
-int nextDigits[] = {0, 0, 0, 0, 0, 0};
+byte currentDots[] = {0, 0, 0, 0, 0, 0};
+byte currentDigits[] = {0, 0, 0, 0, 0, 0};
+byte nextDigits[] = {0, 0, 0, 0, 0, 0};
 
 const unsigned long numberSetInterval = 5000; // how often to query the API
 const unsigned long numberUpdateInterval = 75; // time between each frame of animation
@@ -77,7 +77,6 @@ const unsigned long displayRefreshInterval = 20; // minor throttle to prevent fl
 unsigned long numberSetAt;
 unsigned long numberUpdatedAt;
 unsigned long displayRefreshedAt;
-
 
 
 // ====================================================================================================================
@@ -95,15 +94,15 @@ void sendUpdate(const int code, const char *message);
 void handleNotFound();
 void loadParamsFromEEPROM();
 void saveParamsFromEEPROM();
-void throwError(const int errorCode);
+void throwError(const byte errorCode);
 void setNextNumber();
 void setCurrentNumber();
 bool isCurrentNumberIdenticalToNextNumber();
-void getDigitDepths(int digits[], int digitDepths[]);
-int getDigitDepth(int value);
-void setDigitsFromNumber(long num, int seg[]);
-void nixieDisplay(long num);
-void nixieDisplay(int seg[]);
+void getDigitDepths(byte digits[], byte digitDepths[]);
+byte getDigitDepth(byte value);
+void setDigitsFromNumber(long number, byte digits[]);
+void nixieDisplay(long number);
+void nixieDisplay(byte digits[]);
 
 
 // ====================================================================================================================
@@ -334,12 +333,14 @@ void saveParamsToEEPROM()
 // ====================================================================================================================
 // Error handling.
 // ====================================================================================================================
-void throwError(const int errorCode)
+
+void throwError(const byte errorCode)
 {
-  const int errorDigits[] = {errorCode, BLANK, BLANK, BLANK, BLANK, BLANK};
+  const byte errorDigits[] = {errorCode, BLANK, BLANK, BLANK, BLANK, BLANK};
   memcpy(currentDigits, errorDigits, sizeof(errorDigits));
   memcpy(nextDigits, errorDigits, sizeof(errorDigits));
 }
+
 
 // ====================================================================================================================
 // Query API for next number.
@@ -406,17 +407,17 @@ void setCurrentNumber()
     return;
   }
 
-  int currentDigitDepths[6];
-  int nextDigitDepths[6];
+  byte currentDigitDepths[6];
+  byte nextDigitDepths[6];
 
   getDigitDepths(currentDigits, currentDigitDepths);
   getDigitDepths(nextDigits, nextDigitDepths);
 
-  int signOfChange;
+  signed char signOfChange;
 
-  int resultDigits[6];
+  byte resultDigits[6];
 
-  int i; // Save this so we know when we called break
+  byte i; // Save this so we know when we called break
 
   for (i = 0; i < 6; i++) {
     if (currentDigits[i] == BLANK && nextDigits[i] != BLANK) {
@@ -455,7 +456,7 @@ bool isCurrentNumberIdenticalToNextNumber()
 {
   bool isIdentical = true;
 
-  for (int i = 0; i < 6; i++) {
+  for (byte i = 0; i < 6; i++) {
     if (currentDigits[i] != nextDigits[i]) {
       isIdentical = false;
       break;
@@ -465,16 +466,16 @@ bool isCurrentNumberIdenticalToNextNumber()
   return isIdentical;
 }
 
-void getDigitDepths(int digits[], int digitDepths[])
+void getDigitDepths(byte digits[], byte digitDepths[])
 {
   for (byte i = 0; i < 6; i++) {
     digitDepths[i] = getDigitDepth(digits[i]);
   }
 }
 
-int getDigitDepth(int value)
+byte getDigitDepth(byte value)
 {
-  for (int i = 0; i < 10; i++) {
+  for (byte i = 0; i < 10; i++) {
     if (nixieDigitStack[i] == value) {
       return i;
     }
@@ -483,7 +484,7 @@ int getDigitDepth(int value)
   return BLANK;
 }
 
-void setDigitsFromNumber(long number, int digits[])
+void setDigitsFromNumber(long number, byte digits[])
 {
   digits[0] = number / 100000;
   digits[1] = (number / 10000) % 10;
@@ -517,12 +518,12 @@ void setDigitsFromNumber(long number, int digits[])
 
 void nixieDisplay(long number)
 {
-  int digits[6];
+  byte digits[6];
   setDigitsFromNumber(number, digits);
   nixieDisplay(digits);
 }
 
-void nixieDisplay(int digits[])
+void nixieDisplay(byte digits[])
 {
   nixie.displayDigits(digits[0], digits[1], digits[2], digits[3], digits[4], digits[5]);
 }
