@@ -47,8 +47,10 @@ nixie_esp nixie(dataPin, clockPin);
 ESP8266WebServer server(80);
 
 // Minify, then replace " with \", and % with %% in CSS, but keep %s in form
-const char* indexHtml = "<!DOCTYPE html><html><head> <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"> <link rel=\"icon\" href=\"data:,\"> <title>Nixie</title> <link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css\"/> <link href=\"https://fonts.googleapis.com/css?family=Nixie+One&display=swap\" rel=\"stylesheet\"> <style>*{box-sizing: border-box;}html{background: #ddd; font-family: sans-serif; text-align: center;}div{padding-top: 1.5em; background: #eee; border-top: 3px solid #ccc; border-bottom: 3px solid #ccc;}h1{padding: 2rem; font-size: 2rem; font-weight: 600; font-family: 'Nixie One', sans-serif;}label{display: block; margin-bottom: 0.5rem; margin-left: 1rem; text-align: left;}input[type=text]{width: 100%%; margin-bottom: 1.5rem; padding: .75rem 1rem; border: none; color: #555; font-size: .9rem;}input[type=submit]{cursor: pointer; margin: 1.5em; padding: .5rem 2rem; background: #636363; border: none; color: #fff; font-size: 1rem;}</style></head><body> <h1>Nixie</h1> <form action=\"/update\" method=\"get\"> <div> <label for=\"host\">Host</label> <input type=\"text\" name=\"host\" value=\"%s\" maxlength=\"39\" required/> <label for=\"path\">Path</label> <input type=\"text\" name=\"path\" value=\"%s\" maxlength=\"254\" required/> </div><input type=\"submit\" value=\"Update\"/> </form></body></html>";
-const char* updateHtml = "<!DOCTYPE html><html><head> <meta http-equiv=\"refresh\" content=\"5; URL=/\"/> <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"> <link rel=\"icon\" href=\"data:,\"> <title>Nixie</title> <link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css\"/> <link href=\"https://fonts.googleapis.com/css?family=Nixie+One&display=swap\" rel=\"stylesheet\"> <style>*{box-sizing: border-box;}html{background: #ddd; font-family: sans-serif; text-align: center;}h1{padding: 2rem; font-size: 2rem; font-weight: 600; font-family: 'Nixie One', sans-serif;}</style></head><body> <h1>%s</h1> <h2>Returning to form...</h2></body></html>";
+// https://forum.arduino.cc/index.php?topic=293408.0
+// https://www.arduino.cc/reference/en/language/variables/utilities/progmem/
+const char* indexHtml PROGMEM = "<!DOCTYPE html><html><head> <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"> <link rel=\"icon\" href=\"data:,\"> <title>Nixie</title> <link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css\"/> <link href=\"https://fonts.googleapis.com/css?family=Nixie+One&display=swap\" rel=\"stylesheet\"> <style>*{box-sizing: border-box;}html{background: #ddd; font-family: sans-serif; text-align: center;}div{padding-top: 1.5em; background: #eee; border-top: 3px solid #ccc; border-bottom: 3px solid #ccc;}h1{padding: 2rem; font-size: 2rem; font-weight: 600; font-family: 'Nixie One', sans-serif;}label{display: block; margin-bottom: 0.5rem; margin-left: 1rem; text-align: left;}input[type=text]{width: 100%%; margin-bottom: 1.5rem; padding: .75rem 1rem; border: none; color: #555; font-size: .9rem;}input[type=submit]{cursor: pointer; margin: 1.5em; padding: .5rem 2rem; background: #636363; border: none; color: #fff; font-size: 1rem;}</style></head><body> <h1>Nixie</h1> <form action=\"/update\" method=\"get\"> <div> <label for=\"host\">Host</label> <input type=\"text\" name=\"host\" value=\"%s\" maxlength=\"39\" required/> <label for=\"path\">Path</label> <input type=\"text\" name=\"path\" value=\"%s\" maxlength=\"254\" required/> </div><input type=\"submit\" value=\"Update\"/> </form></body></html>";
+const char* updateHtml PROGMEM = "<!DOCTYPE html><html><head> <meta http-equiv=\"refresh\" content=\"5; URL=/\"/> <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"> <link rel=\"icon\" href=\"data:,\"> <title>Nixie</title> <link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css\"/> <link href=\"https://fonts.googleapis.com/css?family=Nixie+One&display=swap\" rel=\"stylesheet\"> <style>*{box-sizing: border-box;}html{background: #ddd; font-family: sans-serif; text-align: center;}h1{padding: 2rem; font-size: 2rem; font-weight: 600; font-family: 'Nixie One', sans-serif;}</style></head><body> <h1>%S</h1> <h2>Returning to form...</h2></body></html>";
 
 // Generally, host could be up to 254 = 253 max for domain + 1 for null terminator
 // https://webmasters.stackexchange.com/questions/16996/maximum-domain-name-length
@@ -152,7 +154,12 @@ void loop()
     numberSetAt = millis();
 
     // Uncomment to see remaining memory:
-    Serial.println(ESP.getFreeHeap());
+    Serial.print(ESP.getFreeHeap());
+    Serial.print(F(" "));
+    Serial.print(ESP.getHeapFragmentation());
+    Serial.print(F(" "));
+    Serial.print(ESP.getFreeSketchSpace());
+    Serial.println();
   }
 
   if (millis() - numberUpdatedAt > numberUpdateInterval) {
@@ -221,25 +228,25 @@ void saveConfigCallback()
 void handleRoot()
 {
   char temp[2000];
-  snprintf(temp, sizeof(temp), indexHtml, apiHost, apiPath);
+  snprintf_P(temp, sizeof(temp), indexHtml, apiHost, apiPath);
   server.send(200, F("text/html"), temp);
 }
 
 void handleUpdate()
 {
   if (!server.hasArg(F("host")) || !server.hasArg(F("path"))) {
-    return sendUpdate(400, "Missing param.");
+    return sendUpdate(400, F("Missing param."));
   }
 
   const String & apiHostNew = server.arg(F("host"));
   const String & apiPathNew = server.arg(F("path"));
 
   if (apiHostNew == apiHost && apiPathNew == apiPath) {
-    return sendUpdate(400, "Params not changed.");
+    return sendUpdate(400, F("Params not changed."));
   }
 
   if (apiHostNew.length() == 0 || apiPathNew.length() == 0) {
-    return sendUpdate(400, "Param is empty.");
+    return sendUpdate(400, F("Param is empty."));
   }
 
   Serial.print(F("New host: "));
@@ -253,14 +260,15 @@ void handleUpdate()
 
   saveParamsToEEPROM();
 
-  return sendUpdate(200, "Success.");
+  return sendUpdate(200, F("Success."));
 }
 
 // https://majenko.co.uk/blog/evils-arduino-strings
-void sendUpdate(const int code, const char *message)
+// https://forum.arduino.cc/index.php?topic=293408.msg2050273
+void sendUpdate(const int code, const __FlashStringHelper* message)
 {
   char temp[1000];
-  snprintf(temp, sizeof(temp), updateHtml, message);
+  snprintf_P(temp, sizeof(temp), updateHtml, message);
   server.send(code, F("text/html"), temp);
 }
 
