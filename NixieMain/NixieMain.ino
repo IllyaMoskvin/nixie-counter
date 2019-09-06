@@ -72,9 +72,6 @@ char apiPath[255];
 const char memEndDefined[2 + 1] = "OK";
 char memEndCurrent[sizeof(memEndDefined)];
 
-// All outbound requests to API use HTTPS
-const int apiPort = 443;
-
 byte currentDots[] = {0, 0, 0, 0, 0, 0};
 byte currentDigits[] = {0, 0, 0, 0, 0, 0};
 byte nextDigits[] = {0, 0, 0, 0, 0, 0};
@@ -366,13 +363,16 @@ void setNextNumber()
   // Turn off certificate and/or fingerprint checking
   client.setInsecure();
 
-  if (!client.connect(apiHost, apiPort)) {
+  if (!client.connect(apiHost, 443)) {
     return throwError(ERROR_CONNECTION_FAILED);
   }
 
   // https://arduinojson.org/v6/example/http-client/
-  client.println(String("GET ") + apiPath + " HTTP/1.1");
-  client.println(String("Host: ") + apiHost);
+  client.print(F("GET "));
+  client.print(apiPath);
+  client.println(F(" HTTP/1.1"));
+  client.print(F("Host: "));
+  client.println(apiHost);
   client.println(F("Connection: close"));
   if (client.println() == 0) {
     client.stop();
@@ -381,12 +381,13 @@ void setNextNumber()
 
   char status[32] = {0};
   client.readBytesUntil('\r', status, sizeof(status));
-  if (strcmp(status, "HTTP/1.1 200 OK") != 0) {
+  // https://forum.arduino.cc/index.php?topic=362476.0
+  if (strcmp_P(status, (PGM_P) F("HTTP/1.1 200 OK")) != 0) {
     client.stop();
     return throwError(ERROR_RESPONSE_UNEXPECTED);
   }
 
-  if (!client.find("\r\n\r\n")) {
+  if (!client.find((PGM_P) F("\r\n\r\n"))) {
     client.stop();
     return throwError(ERROR_RESPONSE_INVALID);
   }
@@ -402,11 +403,12 @@ void setNextNumber()
     return throwError(ERROR_PARSE_JSON);
   }
 
-  long total = doc[F("pagination")][F("total")];
-
   client.stop();
 
-  setDigitsFromNumber(total, nextDigits);
+  // TODO: Look into dehardcoding this from our API?
+  long result = doc[F("pagination")][F("total")];
+
+  setDigitsFromNumber(result, nextDigits);
 }
 
 
