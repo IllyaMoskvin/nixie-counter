@@ -43,6 +43,9 @@ const byte btnPin = 13;
 
 nixie_esp nixie(dataPin, clockPin);
 
+// WiFiManager starts network with this name
+const char* WIFI_AP_SSID PROGMEM = "Nixie";
+
 // Serve the config webserver via normal HTTP
 ESP8266WebServer server(80);
 
@@ -200,9 +203,9 @@ void initWiFiManager(const bool shouldAutoConnect)
   // For auto connect, config portal is not persistent if WiFi credentials are valid
   // Goes into a blocking loop until its config form is submitted
   if (shouldAutoConnect) {
-    wifiManager.autoConnect("Nixie");
+    wifiManager.autoConnect((PGM_P) WIFI_AP_SSID);
   } else {
-    wifiManager.startConfigPortal("Nixie");
+    wifiManager.startConfigPortal((PGM_P) WIFI_AP_SSID);
   }
 
   // If you get here, you have connected to the WiFi
@@ -266,7 +269,6 @@ void handleUpdate()
   return sendUpdate(200, F("Success."));
 }
 
-// https://majenko.co.uk/blog/evils-arduino-strings
 // https://forum.arduino.cc/index.php?topic=293408.msg2050273
 void sendUpdate(const int code, const __FlashStringHelper* message)
 {
@@ -275,6 +277,7 @@ void sendUpdate(const int code, const __FlashStringHelper* message)
 }
 
 // https://github.com/esp8266/Arduino/blob/e9d052c/libraries/ESP8266WebServer/examples/HelloServer/HelloServer.ino#L24
+// TODO: https://majenko.co.uk/blog/evils-arduino-strings
 void handleNotFound()
 {
   String message = F("File Not Found\n\n");
@@ -286,7 +289,7 @@ void handleNotFound()
   message += server.args();
   message += F("\n");
   for (uint8_t i = 0; i < server.args(); i++) {
-    message += " " + server.argName(i) + ": " + server.arg(i) + "\n";
+    message += (PGM_P) F(" ") + server.argName(i) + (PGM_P) F(": ") + server.arg(i) + (PGM_P) F("\n");
   }
   server.send(404, F("text/plain"), message);
 }
@@ -314,13 +317,13 @@ void loadParamsFromEEPROM()
   // Uncomment to simulate EEPROM read fail:
   // strcpy(memEndCurrent, "NO");
 
-  if (String(memEndCurrent) != String(memEndDefined)) {
-    Serial.println(F("Failed to load params from EEPROM, using defaults..."));
-    strcpy (apiHost, apiHostDefault);
-    strcpy (apiPath, apiPathDefault);
-    saveParamsToEEPROM();
-  } else {
+  if (strcmp(memEndCurrent, memEndDefined) == 0) {
     Serial.println(F("Loaded params from EEPROM"));
+  } else {  
+    Serial.println(F("Failed to load params from EEPROM, using defaults..."));
+    strcpy(apiHost, apiHostDefault);
+    strcpy(apiPath, apiPathDefault);
+    saveParamsToEEPROM();
   }
 
   Serial.print(F("Host: "));
