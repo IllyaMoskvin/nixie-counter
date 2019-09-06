@@ -52,6 +52,10 @@ ESP8266WebServer server(80);
 const char* indexHtml PROGMEM = "<!DOCTYPE html><html><head> <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"> <link rel=\"icon\" href=\"data:,\"> <title>Nixie</title> <link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css\"/> <link href=\"https://fonts.googleapis.com/css?family=Nixie+One&display=swap\" rel=\"stylesheet\"> <style>*{box-sizing: border-box;}html{background: #ddd; font-family: sans-serif; text-align: center;}div{padding-top: 1.5em; background: #eee; border-top: 3px solid #ccc; border-bottom: 3px solid #ccc;}h1{padding: 2rem; font-size: 2rem; font-weight: 600; font-family: 'Nixie One', sans-serif;}label{display: block; margin-bottom: 0.5rem; margin-left: 1rem; text-align: left;}input[type=text]{width: 100%%; margin-bottom: 1.5rem; padding: .75rem 1rem; border: none; color: #555; font-size: .9rem;}input[type=submit]{cursor: pointer; margin: 1.5em; padding: .5rem 2rem; background: #636363; border: none; color: #fff; font-size: 1rem;}</style></head><body> <h1>Nixie</h1> <form action=\"/update\" method=\"get\"> <div> <label for=\"host\">Host</label> <input type=\"text\" name=\"host\" value=\"%s\" maxlength=\"39\" required/> <label for=\"path\">Path</label> <input type=\"text\" name=\"path\" value=\"%s\" maxlength=\"254\" required/> </div><input type=\"submit\" value=\"Update\"/> </form></body></html>";
 const char* updateHtml PROGMEM = "<!DOCTYPE html><html><head> <meta http-equiv=\"refresh\" content=\"5; URL=/\"/> <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"> <link rel=\"icon\" href=\"data:,\"> <title>Nixie</title> <link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css\"/> <link href=\"https://fonts.googleapis.com/css?family=Nixie+One&display=swap\" rel=\"stylesheet\"> <style>*{box-sizing: border-box;}html{background: #ddd; font-family: sans-serif; text-align: center;}h1{padding: 2rem; font-size: 2rem; font-weight: 600; font-family: 'Nixie One', sans-serif;}</style></head><body> <h1>%S</h1> <h2>Returning to form...</h2></body></html>";
 
+// Keep this global to avoid risking giant memory holes
+// TODO; https://github.com/me-no-dev/ESPAsyncWebServer
+char bufferHtml[2000];
+
 // Generally, host could be up to 254 = 253 max for domain + 1 for null terminator
 // https://webmasters.stackexchange.com/questions/16996/maximum-domain-name-length
 const char apiHostDefault[40] = "nocache.aggregator-data.artic.edu";
@@ -227,9 +231,8 @@ void saveConfigCallback()
 
 void handleRoot()
 {
-  char temp[2000];
-  snprintf_P(temp, sizeof(temp), indexHtml, apiHost, apiPath);
-  server.send(200, F("text/html"), temp);
+  snprintf_P(bufferHtml, sizeof(bufferHtml), indexHtml, apiHost, apiPath);
+  server.send(200, F("text/html"), bufferHtml);
 }
 
 void handleUpdate()
@@ -267,9 +270,8 @@ void handleUpdate()
 // https://forum.arduino.cc/index.php?topic=293408.msg2050273
 void sendUpdate(const int code, const __FlashStringHelper* message)
 {
-  char temp[1000];
-  snprintf_P(temp, sizeof(temp), updateHtml, message);
-  server.send(code, F("text/html"), temp);
+  snprintf_P(bufferHtml, sizeof(bufferHtml), updateHtml, message);
+  server.send(code, F("text/html"), bufferHtml);
 }
 
 // https://github.com/esp8266/Arduino/blob/e9d052c/libraries/ESP8266WebServer/examples/HelloServer/HelloServer.ino#L24
