@@ -462,16 +462,13 @@ void setCurrentNumber()
 
 bool isCurrentNumberIdenticalToNextNumber()
 {
-  bool isIdentical = true;
-
   for (byte i = 0; i < 6; i++) {
     if (currentDigits[i] != nextDigits[i]) {
-      isIdentical = false;
-      break;
+      return false;
     }
   }
 
-  return isIdentical;
+  return true;
 }
 
 void getDigitDepths(byte digits[], byte digitDepths[])
