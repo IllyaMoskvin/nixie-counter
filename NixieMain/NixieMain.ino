@@ -76,8 +76,8 @@ char bufferHtml[2000];
 
 // Generally, host could be up to 254 = 253 max for domain + 1 for null terminator
 // https://webmasters.stackexchange.com/questions/16996/maximum-domain-name-length
-const char apiHostDefault[40] = "nocache.aggregator-data.artic.edu";
-const char apiPathDefault[255] = "/api/v1/artworks/search?cache=false&query[range][timestamp][gte]=now-1d";
+const char apiHostDefault[40] PROGMEM = "nocache.aggregator-data.artic.edu";
+const char apiPathDefault[255] PROGMEM = "/api/v1/artworks/search?cache=false&limit=0&query[range][timestamp][gte]=now-1d";
 
 // Config values stored in EEPROM, with defaults above
 char apiHost[40];
@@ -353,10 +353,10 @@ void loadParamsFromEEPROM()
 
   if (strcmp(memEndCurrent, memEndDefined) == 0) {
     Serial.println(F("Loaded params from EEPROM"));
-  } else {  
+  } else {
     Serial.println(F("Failed to load params from EEPROM, using defaults..."));
-    strcpy(apiHost, apiHostDefault);
-    strcpy(apiPath, apiPathDefault);
+    strcpy_P(apiHost, apiHostDefault);
+    strcpy_P(apiPath, apiPathDefault);
     saveParamsToEEPROM();
   }
 
