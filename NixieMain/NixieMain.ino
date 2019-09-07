@@ -2,6 +2,9 @@
 // Libraries.
 // ====================================================================================================================
 
+// https://github.com/PatrickGlatz/OneButton
+#include <OneButton.h>
+
 // https://doayee.co.uk/nixie/library/
 #include <NixieDriver_ESP.h>
 #include <ESP8266WiFi.h>
@@ -29,6 +32,16 @@ const byte ERROR_PARSE_JSON = 5; // cannot parse valid json from API response
 
 
 // ====================================================================================================================
+// State machine.
+// ====================================================================================================================
+
+const byte STATE_DEFAULT = 0;
+const byte STATE_WEBSERVER = 1;
+
+byte currentState = STATE_DEFAULT;
+
+
+// ====================================================================================================================
 // Global variables.
 // ====================================================================================================================
 
@@ -39,7 +52,9 @@ const byte nixieDigitStack[] = {1, 6, 2, 7, 5, 0, 4, 9, 8, 3};
 const byte dataPin = 12;
 const byte clockPin = 14;
 const byte oePin = 16;
-const byte btnPin = 13;
+
+// https://github.com/PatrickGlatz/OneButton/blob/a7e4bdc/src/OneButton.cpp#L33
+OneButton btnPin(13, true, true);
 
 nixie_esp nixie(dataPin, clockPin);
 
@@ -130,7 +145,7 @@ void setup()
   pinMode(oePin, OUTPUT);
   digitalWrite(oePin, HIGH);
 
-  pinMode(btnPin, INPUT_PULLUP);
+  btnPin.attachClick(handleClick);
 
   // Run WiFiManager in autoconnect mode
   initWiFiManager(true);
@@ -152,6 +167,8 @@ void setup()
 void loop()
 {
   server.handleClient();
+
+  btnPin.tick();
 
   if (millis() - numberSetAt > numberSetInterval) {
     setNextNumber();
@@ -175,6 +192,26 @@ void loop()
     nixieDisplay(currentDigits);
     displayRefreshedAt = millis();
   }
+}
+
+
+// ====================================================================================================================
+// Button click functions for state machine.
+// ====================================================================================================================
+
+void handleClick()
+{
+  switch (currentState) {
+    case STATE_DEFAULT:
+      currentState = STATE_WEBSERVER;
+      break;
+    case STATE_WEBSERVER:
+      currentState = STATE_DEFAULT;
+      break;
+  }
+
+  Serial.print(F("New state: "));
+  Serial.println(currentState);
 }
 
 
