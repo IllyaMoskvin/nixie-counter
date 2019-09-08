@@ -147,6 +147,9 @@ void setup()
 
   btnPin.attachClick(handleClick);
 
+  // When webserver is active, try accessing http://nixie.local
+  WiFi.hostname(F("Nixie"));
+
   // Run WiFiManager in autoconnect mode
   initWiFiManager(true);
 
