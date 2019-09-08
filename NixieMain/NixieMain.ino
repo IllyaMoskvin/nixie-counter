@@ -88,8 +88,8 @@ const char memEndDefined[2 + 1] = "OK";
 char memEndCurrent[sizeof(memEndDefined)];
 
 byte currentDots[] = {0, 0, 0, 0, 0, 0};
-byte currentDigits[] = {0, 0, 0, 0, 0, 0};
-byte nextDigits[] = {0, 0, 0, 0, 0, 0};
+byte currentDigits[] = {BLANK, 8, 3, 7, 7, 0};
+byte nextDigits[] = {BLANK, 8, 3, 7, 7, 0};
 
 const unsigned long numberSetInterval = 5000; // how often to query the API
 const unsigned long numberUpdateInterval = 75; // time between each frame of animation
@@ -149,6 +149,9 @@ void setup()
 
   // When webserver is active, try accessing http://nixie.local
   WiFi.hostname(F("Nixie"));
+
+  // Say "hello" in l33t
+  refreshDisplay();
 
   // Run WiFiManager in autoconnect mode
   initWiFiManager(true);
