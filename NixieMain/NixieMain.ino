@@ -90,14 +90,39 @@ char memEndCurrent[sizeof(memEndDefined)];
 byte currentDots[] = {0, 0, 0, 0, 0, 0};
 byte currentDigits[] = {BLANK, 8, 3, 7, 7, 0};
 byte nextDigits[] = {BLANK, 8, 3, 7, 7, 0};
+byte savedDigits[] = {0, 0, 0, 0, 0, 0};
+
+// IPv4: 4 bytes with 3 chars max + 3 dots + nullterm, or '(IP unset)'
+char currentIP[16];
+char oldIP[16];
+
+const int IP_SCROLL_REST_LEFT = 0;
+const int IP_SCROLL_MOVE_LEFT = 1;
+const int IP_SCROLL_REST_RIGHT = 2;
+const int IP_SCROLL_MOVE_RIGHT = 3;
+
+bool ipShouldScroll = false;
+byte ipScrollState = IP_SCROLL_REST_LEFT;
+bool ipIsScrollResting = true;
+byte ipScrollOffset = 0;
+
+byte ipDigitCount = 0;
+byte ipCharCount = 0;
 
 const unsigned long numberSetInterval = 5000; // how often to query the API
 const unsigned long numberUpdateInterval = 75; // time between each frame of animation
 const unsigned long displayRefreshInterval = 20; // minor throttle to prevent flicker
 
+const unsigned long ipCheckInterval = 10000;
+const unsigned long ipScrollRestInterval = 2500; // how long to rest at each end of the ip
+const unsigned long ipScrollTickInterval = 125; // how long to rest at each offset
+
 unsigned long numberSetAt;
 unsigned long numberUpdatedAt;
 unsigned long displayRefreshedAt;
+
+unsigned long ipCheckedAt;
+unsigned long ipScrollUpdatedAt;
 
 
 // ====================================================================================================================
@@ -106,9 +131,14 @@ unsigned long displayRefreshedAt;
 
 void setup();
 void loop();
+void loopStateDefault();
+void loopStateWebserver();
 void initWiFiManager();
 void configModeCallback (WiFiManager *myWiFiManager);
 void saveConfigCallback();
+void checkIP();
+void scrollIP();
+void displayIP();
 void handleRoot();
 void handleUpdate();
 void sendUpdate(const int code, const char *message);
@@ -122,8 +152,7 @@ bool isCurrentNumberIdenticalToNextNumber();
 void getDigitDepths(byte digits[], byte digitDepths[]);
 byte getDigitDepth(byte value);
 void setDigitsFromNumber(long number, byte digits[]);
-void nixieDisplay(long number);
-void nixieDisplay(byte digits[]);
+void refreshDisplay();
 
 
 // ====================================================================================================================
@@ -166,16 +195,29 @@ void setup()
   server.on(F("/"), handleRoot);
   server.on(F("/update"), handleUpdate);
   server.onNotFound(handleNotFound);
-
-  server.begin();
 }
 
 void loop()
 {
-  server.handleClient();
-
   btnPin.tick();
 
+  switch (currentState) {
+    case STATE_DEFAULT:
+      loopStateDefault();
+      break;
+    case STATE_WEBSERVER:
+      loopStateWebserver();
+      break;
+  }
+
+  if (millis() - displayRefreshedAt > displayRefreshInterval) {
+    refreshDisplay();
+    displayRefreshedAt = millis();
+  }
+}
+
+void loopStateDefault()
+{
   if (millis() - numberSetAt > numberSetInterval) {
     setNextNumber();
     numberSetAt = millis();
@@ -184,8 +226,6 @@ void loop()
     Serial.print(ESP.getFreeHeap());
     Serial.print(F(" "));
     Serial.print(ESP.getHeapFragmentation());
-    Serial.print(F(" "));
-    Serial.print(ESP.getFreeSketchSpace());
     Serial.println();
   }
 
@@ -193,10 +233,20 @@ void loop()
     setCurrentNumber();
     numberUpdatedAt = millis();
   }
+}
 
-  if (millis() - displayRefreshedAt > displayRefreshInterval) {
-    nixieDisplay(currentDigits);
-    displayRefreshedAt = millis();
+void loopStateWebserver()
+{
+  server.handleClient();
+
+  if (millis() - ipCheckedAt > ipCheckInterval) {
+    checkIP();
+    ipCheckedAt = millis();
+  }
+
+  if (millis() - ipScrollUpdatedAt > (ipIsScrollResting ? ipScrollRestInterval : ipScrollTickInterval)) {
+    scrollIP();
+    ipScrollUpdatedAt = millis();
   }
 }
 
@@ -207,14 +257,26 @@ void loop()
 
 void handleClick()
 {
+  for (byte i = 0; i < 6; i++) {
+    currentDots[i] = false;
+  }
+
   switch (currentState) {
     case STATE_DEFAULT:
       currentState = STATE_WEBSERVER;
+      memcpy(savedDigits, currentDigits, sizeof(currentDigits));
+      server.begin();
+      currentIP[0] = '\0';
+      checkIP();
       break;
     case STATE_WEBSERVER:
       currentState = STATE_DEFAULT;
+      memcpy(currentDigits, savedDigits, sizeof(savedDigits));
+      server.stop();
       break;
   }
+
+  refreshDisplay();
 
   Serial.print(F("New state: "));
   Serial.println(currentState);
@@ -257,7 +319,7 @@ void configModeCallback (WiFiManager *myWiFiManager)
   nixie.setDecimalPoint(2, true);
   nixie.setDecimalPoint(3, true);
   nixie.setDecimalPoint(4, true);
-  nixie.displayDigits(BLANK, 1, 0, 0, 0, 1);
+  nixie.displayDigits(1, 0, 0, 0, 1, BLANK);
 }
 
 void saveConfigCallback()
@@ -265,6 +327,110 @@ void saveConfigCallback()
   nixie.setDecimalPoint(2, false);
   nixie.setDecimalPoint(3, false);
   nixie.setDecimalPoint(4, false);
+}
+
+
+// ====================================================================================================================
+// Handle IP checking and display during web server state.
+// ====================================================================================================================
+
+void checkIP()
+{
+  if (WiFi.status() != WL_CONNECTED) {
+    return;
+  }
+
+  memcpy(oldIP, currentIP, sizeof(currentIP));
+  WiFi.localIP().toString().toCharArray(currentIP, sizeof(currentIP));
+
+  // Uncomment for testing:
+  // memcpy(currentIP, "192.168.123.245", sizeof(currentIP));
+  // memcpy(currentIP, "10.0.0.2", sizeof(currentIP));
+
+  if (currentIP == oldIP) {
+    return;
+  }
+
+  ipDigitCount = 0;
+  ipCharCount = strlen(currentIP);
+
+  for (byte i = 0; i < ipCharCount; i++) {
+    if (isDigit(currentIP[i])) {
+      ipDigitCount++;
+    }
+  }
+
+  ipShouldScroll = ipDigitCount > 6;
+  ipScrollState = IP_SCROLL_REST_LEFT;
+  ipIsScrollResting = true;
+  ipScrollOffset = 0;
+  ipScrollUpdatedAt = millis();
+
+  displayIP();
+}
+
+void scrollIP()
+{
+  switch (ipScrollState) {
+    case IP_SCROLL_REST_LEFT:
+      ipScrollState = IP_SCROLL_MOVE_LEFT;
+      ipIsScrollResting = false;
+      break;
+    case IP_SCROLL_MOVE_LEFT:
+      if (ipScrollOffset + 6 == ipDigitCount) {
+        ipScrollState = IP_SCROLL_REST_RIGHT;
+        ipIsScrollResting = true;
+      } else {
+        ipScrollOffset += 1;
+      }
+      break;
+    case IP_SCROLL_REST_RIGHT:
+      ipScrollState = IP_SCROLL_MOVE_RIGHT;
+      ipIsScrollResting = false;
+      break;
+    case IP_SCROLL_MOVE_RIGHT:
+      if (ipScrollOffset == 0) {
+        ipScrollState = IP_SCROLL_REST_LEFT;
+        ipIsScrollResting = true;
+      } else {
+        ipScrollOffset -= 1;
+      }
+      break;
+  }
+
+  displayIP();
+}
+
+void displayIP()
+{
+  if (ipCharCount < 1) {
+    return;
+  }
+
+  for (byte i = 0; i < 6; i++) {
+    currentDigits[i] = BLANK;
+    currentDots[i] = false;
+  }
+
+  byte currentDigit = 0;
+  byte digitsToSkip = ipScrollOffset;
+
+  for (byte i = 0; i < ipCharCount; i++) {
+    if (isDigit(currentIP[i]) && currentDigit < 6) {
+      if (digitsToSkip == 0) {
+        currentDigits[currentDigit] = currentIP[i] - '0'; // Subtract the ASCII value for zero
+        currentDigit++;
+      } else {
+        digitsToSkip -= 1;
+      }
+      continue;
+    }
+
+    // For decimals, segment zero is 2nd tube from left
+    if (currentIP[i] == '.' && currentDigit > 0 && currentDigit < 6) {
+      currentDots[currentDigit - 1] = true;
+    }
+  }
 }
 
 
@@ -398,6 +564,11 @@ void throwError(const byte errorCode)
 // ====================================================================================================================
 // Query API for next number.
 // ====================================================================================================================
+
+// Unfortunately, while the API is being queried, the button becomes unresponsive.
+// TODO: Use AsyncClient from me-no-dev/ESPAsyncTCP? KISS for now.
+// https://github.com/me-no-dev/ESPAsyncTCP/issues/18#issuecomment-240777516
+// TODO: Alternatively, look into interrupts for the button.
 
 void setNextNumber()
 {
@@ -571,14 +742,11 @@ void setDigitsFromNumber(long number, byte digits[])
   }
 }
 
-void nixieDisplay(long number)
+void refreshDisplay()
 {
-  byte digits[6];
-  setDigitsFromNumber(number, digits);
-  nixieDisplay(digits);
-}
+  for(int i = 0; i < 6; i++) {
+    nixie.setDecimalPoint(i, currentDots[i]);
+  }
 
-void nixieDisplay(byte digits[])
-{
-  nixie.displayDigits(digits[0], digits[1], digits[2], digits[3], digits[4], digits[5]);
+  nixie.displayDigits(currentDigits[0], currentDigits[1], currentDigits[2], currentDigits[3], currentDigits[4], currentDigits[5]);
 }
