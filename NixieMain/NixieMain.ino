@@ -154,6 +154,7 @@ void getDigitDepths(byte digits[], byte digitDepths[]);
 byte getDigitDepth(byte value);
 void setDigitsFromNumber(long number, byte digits[]);
 void refreshDisplay();
+void refreshDisplayDuringButtonPress();
 
 
 // ====================================================================================================================
@@ -745,9 +746,26 @@ void setDigitsFromNumber(long number, byte digits[])
 
 void refreshDisplay()
 {
+  if (digitalRead(btnPin) == LOW) {
+    return refreshDisplayDuringButtonPress();
+  }
+  
   for(int i = 0; i < 6; i++) {
     nixie.setDecimalPoint(i, currentDots[i]);
   }
 
   nixie.displayDigits(currentDigits[0], currentDigits[1], currentDigits[2], currentDigits[3], currentDigits[4], currentDigits[5]);
+}
+
+// Work-around for weird bug, probably due to using the 5v Doayee board with the 3.3v ESP8266.
+// When the button is held down, if there is a dot in the second-to-last segment (currentDots[3]),
+// then the dot in the last segment lights up as well. We hide it here by blanking the digits
+// and lighting up all the dots during a state transition.
+void refreshDisplayDuringButtonPress()
+{
+  for(int i = 0; i < 6; i++) {
+    nixie.setDecimalPoint(i, true);
+  }
+
+  nixie.displayDigits(BLANK, BLANK, BLANK, BLANK, BLANK, BLANK);
 }
