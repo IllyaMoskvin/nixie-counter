@@ -52,9 +52,10 @@ const byte nixieDigitStack[] = {1, 6, 2, 7, 5, 0, 4, 9, 8, 3};
 const byte dataPin = 12;
 const byte clockPin = 14;
 const byte oePin = 16;
+const byte btnPin = 13;
 
 // https://github.com/PatrickGlatz/OneButton/blob/a7e4bdc/src/OneButton.cpp#L33
-OneButton btnPin(13, true, true);
+OneButton button(btnPin, true, true);
 
 nixie_esp nixie(dataPin, clockPin);
 
@@ -174,7 +175,7 @@ void setup()
   pinMode(oePin, OUTPUT);
   digitalWrite(oePin, HIGH);
 
-  btnPin.attachClick(handleClick);
+  button.attachClick(handleClick);
 
   // When webserver is active, try accessing http://nixie.local
   WiFi.hostname(F("Nixie"));
@@ -199,7 +200,7 @@ void setup()
 
 void loop()
 {
-  btnPin.tick();
+  button.tick();
 
   switch (currentState) {
     case STATE_DEFAULT:
