@@ -32,7 +32,7 @@ const byte ERROR_PARSE_JSON = 5; // cannot parse valid json from API response
 
 
 // ====================================================================================================================
-// State machine.
+// Global state machine.
 // ====================================================================================================================
 
 const byte STATE_DEFAULT = 0;
@@ -93,6 +93,19 @@ byte currentDigits[] = {BLANK, 8, 3, 7, 7, 0};
 byte nextDigits[] = {BLANK, 8, 3, 7, 7, 0};
 byte savedDigits[] = {0, 0, 0, 0, 0, 0};
 
+const unsigned long numberSetInterval = 5000; // how often to query the API
+const unsigned long numberUpdateInterval = 75; // time between each frame of animation
+const unsigned long displayRefreshInterval = 20; // minor throttle to prevent flicker
+
+unsigned long numberSetAt;
+unsigned long numberUpdatedAt;
+unsigned long displayRefreshedAt;
+
+
+// ====================================================================================================================
+// Global variables for IP scroll state.
+// ====================================================================================================================
+
 // IPv4: 4 bytes with 3 chars max + 3 dots + nullterm, or '(IP unset)'
 char currentIP[16];
 char oldIP[16];
@@ -110,17 +123,9 @@ byte ipScrollOffset = 0;
 byte ipDigitCount = 0;
 byte ipCharCount = 0;
 
-const unsigned long numberSetInterval = 5000; // how often to query the API
-const unsigned long numberUpdateInterval = 75; // time between each frame of animation
-const unsigned long displayRefreshInterval = 20; // minor throttle to prevent flicker
-
 const unsigned long ipCheckInterval = 10000;
 const unsigned long ipScrollRestInterval = 2500; // how long to rest at each end of the ip
 const unsigned long ipScrollTickInterval = 125; // how long to rest at each offset
-
-unsigned long numberSetAt;
-unsigned long numberUpdatedAt;
-unsigned long displayRefreshedAt;
 
 unsigned long ipCheckedAt;
 unsigned long ipScrollUpdatedAt;
