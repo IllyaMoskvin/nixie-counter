@@ -160,6 +160,7 @@ void loopStateCycle();
 void loopStateWebserver();
 void handleClick();
 void handleDoubleClick();
+void handleTripleClick();
 void initWiFiManager();
 void configModeCallback (WiFiManager *myWiFiManager);
 void saveConfigCallback();
@@ -231,6 +232,7 @@ void setup()
   // Allow input last
   button.attachClick(handleClick);
   button.attachDoubleClick(handleDoubleClick);
+  button.attachTripleClick(handleTripleClick);
 }
 
 void loop()
@@ -362,6 +364,11 @@ void handleDoubleClick()
   Serial.println(currentState);
 }
 
+void handleTripleClick()
+{
+  initWiFiManager(false);
+}
+
 
 // ====================================================================================================================
 // Run WiFiManager to define which WiFi network to use.
@@ -382,11 +389,11 @@ void initWiFiManager(const bool shouldAutoConnect)
   wifiManager.setSaveConfigCallback(saveConfigCallback);
 
   // Fetches ssid and pass for WiFi from EEPROM
-  // For auto connect, config portal is not persistent if WiFi credentials are valid
-  // Goes into a blocking loop until its config form is submitted
   if (shouldAutoConnect) {
+    // For auto connect, portal is not persistent if WiFi credentials are valid
     wifiManager.autoConnect((PGM_P) WIFI_AP_SSID);
   } else {
+    // Goes into a blocking loop until its webform is submitted
     wifiManager.startConfigPortal((PGM_P) WIFI_AP_SSID);
   }
 
@@ -396,17 +403,19 @@ void initWiFiManager(const bool shouldAutoConnect)
 
 void configModeCallback (WiFiManager *myWiFiManager)
 {
+  // Aligned right for dot bug and to differentiate from webserver state
+  // See refreshDisplayDuringButtonPress() regarding dot bug
   nixie.setDecimalPoint(2, true);
   nixie.setDecimalPoint(3, true);
   nixie.setDecimalPoint(4, true);
-  nixie.displayDigits(1, 0, 0, 0, 1, BLANK);
+  nixie.displayDigits(BLANK, 1, 0, 0, 0, 1);
 }
 
 void saveConfigCallback()
 {
-  nixie.setDecimalPoint(2, false);
-  nixie.setDecimalPoint(3, false);
-  nixie.setDecimalPoint(4, false);
+  // Restart if any settings changed to prevent weirdness
+  ESP.wdtDisable();
+  ESP.restart();
 }
 
 
