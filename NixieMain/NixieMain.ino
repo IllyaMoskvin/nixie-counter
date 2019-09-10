@@ -753,10 +753,12 @@ void setDigitsFromNumber(long number, byte digits[])
 
 void refreshDisplay()
 {
-  if (digitalRead(btnPin) == LOW) {
+  // Sometimes, dots don't light up if the tube is cold-started.
+  // We really only need the button work-around during IP display.
+  if (digitalRead(btnPin) == LOW && currentState == STATE_WEBSERVER) {
     return refreshDisplayDuringButtonPress();
   }
-  
+
   for(int i = 0; i < 6; i++) {
     nixie.setDecimalPoint(i, currentDots[i]);
   }
