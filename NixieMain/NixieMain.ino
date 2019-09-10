@@ -269,10 +269,10 @@ void loopStateDefault()
     numberSetAt = millis();
 
     // Uncomment to see remaining memory:
-    Serial.print(ESP.getFreeHeap());
-    Serial.print(F(" "));
-    Serial.print(ESP.getHeapFragmentation());
-    Serial.println();
+    // Serial.print(ESP.getFreeHeap());
+    // Serial.print(F(" "));
+    // Serial.print(ESP.getHeapFragmentation());
+    // Serial.println();
   }
 
   if (millis() - numberUpdatedAt > numberUpdateInterval) {
