@@ -139,6 +139,7 @@ void setup();
 void loop();
 void loopStateDefault();
 void loopStateWebserver();
+void handleClick();
 void initWiFiManager();
 void configModeCallback (WiFiManager *myWiFiManager);
 void saveConfigCallback();
