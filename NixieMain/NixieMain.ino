@@ -110,10 +110,10 @@ unsigned long displayRefreshedAt;
 char currentIP[16];
 char oldIP[16];
 
-const int IP_SCROLL_REST_LEFT = 0;
-const int IP_SCROLL_MOVE_LEFT = 1;
-const int IP_SCROLL_REST_RIGHT = 2;
-const int IP_SCROLL_MOVE_RIGHT = 3;
+const byte IP_SCROLL_REST_LEFT = 0;
+const byte IP_SCROLL_MOVE_LEFT = 1;
+const byte IP_SCROLL_REST_RIGHT = 2;
+const byte IP_SCROLL_MOVE_RIGHT = 3;
 
 bool ipShouldScroll = false;
 byte ipScrollState = IP_SCROLL_REST_LEFT;
