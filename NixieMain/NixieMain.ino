@@ -117,7 +117,6 @@ byte cycleState = CYCLE_BEGIN;
 byte cycleOffset = 0;
 
 const unsigned long cycleBeginInterval = 60000; // how often to enter cycle mode
-unsigned long cycleActiveDelay = 5000; // how long to wait for digits to blank
 unsigned long cycleBeganAt;
 
 
@@ -165,7 +164,6 @@ void initWiFiManager();
 void configModeCallback (WiFiManager *myWiFiManager);
 void saveConfigCallback();
 void beginCycle();
-void setCycleActiveDelay();
 void setCurrentNumberForCycle();
 void checkIP();
 void scrollIP();
@@ -285,7 +283,7 @@ void loopStateCycle()
         setCurrentNumber();
         numberUpdatedAt = millis();
       }
-      if (millis() - cycleBeganAt > cycleActiveDelay) {
+      if (isCurrentNumberIdenticalToNextNumber()) {
         cycleState = CYCLE_ACTIVE;
       }
       break;
@@ -421,26 +419,8 @@ void beginCycle()
     nextDigits[i] = BLANK;
   }
 
-  setCycleActiveDelay();
-
   cycleState = CYCLE_BEGIN;
   cycleOffset = 0;
-}
-
-void setCycleActiveDelay()
-{
-  cycleActiveDelay = 0;
-
-  for (byte i = 0; i < 6; i++) {
-    if (currentDigits[i] == BLANK) {
-      continue;
-    }
-
-    cycleActiveDelay += (getDigitDepth(currentDigits[i]) + 1) * numberUpdateInterval;
-  }
-
-  // Give ourselves a half tube's worth of safety margin
-  cycleActiveDelay += numberUpdateInterval * 5;
 }
 
 void setCurrentNumberForCycle()
