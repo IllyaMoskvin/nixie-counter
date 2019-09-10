@@ -279,6 +279,7 @@ void handleClick()
     case STATE_WEBSERVER:
       currentState = STATE_DEFAULT;
       memcpy(currentDigits, savedDigits, sizeof(savedDigits));
+      numberSetAt = millis();
       server.stop();
       break;
   }
