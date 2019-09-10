@@ -396,6 +396,9 @@ void initWiFiManager(const bool shouldAutoConnect)
   } else {
     // Goes into a blocking loop until its webform is submitted
     wifiManager.startConfigPortal((PGM_P) WIFI_AP_SSID);
+
+    // Restart even if nothing changed
+    restartDevice();
   }
 
   // If you get here, you have connected to the WiFi
@@ -415,6 +418,15 @@ void configModeCallback (WiFiManager *myWiFiManager)
 void saveConfigCallback()
 {
   // Restart if any settings changed to prevent weirdness
+  restartDevice();
+}
+
+// After flashing, manually reboot the device once via power or RST pin
+// Otherwise, you may get an error: rst cause:4, boot mode:(1,7) wdt reset
+// https://www.pieterverhees.nl/sparklesagarbage/esp8266/130-difference-between-esp-reset-and-esp-restart
+// https://github.com/esp8266/Arduino/issues/1017
+void restartDevice()
+{
   ESP.wdtDisable();
   ESP.restart();
 }
