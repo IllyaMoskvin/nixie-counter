@@ -36,7 +36,8 @@ const byte ERROR_PARSE_JSON = 5; // cannot parse valid json from API response
 // ====================================================================================================================
 
 const byte STATE_DEFAULT = 0;
-const byte STATE_WEBSERVER = 1;
+const byte STATE_CYCLE = 1;
+const byte STATE_WEBSERVER = 2;
 
 byte currentState = STATE_DEFAULT;
 
@@ -47,6 +48,8 @@ byte currentState = STATE_DEFAULT;
 
 // Stack of digits in each tube, used to determine digit depth for animations
 const byte nixieDigitStack[] = {1, 6, 2, 7, 5, 0, 4, 9, 8, 3};
+const byte nixieDigitStackBottom = 1;
+const byte nixieDigitStackTop = 3;
 
 // Pinouts
 const byte dataPin = 12;
@@ -103,6 +106,22 @@ unsigned long displayRefreshedAt;
 
 
 // ====================================================================================================================
+// Global variables for digit cycle state to prevent cathode poisoning.
+// ====================================================================================================================
+
+const byte CYCLE_BEGIN = 0; // current number to blank
+const byte CYCLE_ACTIVE = 1; // moving wave across
+const byte CYCLE_END = 2; // exit cycle state
+
+byte cycleState = CYCLE_BEGIN;
+byte cycleOffset = 0;
+
+const unsigned long cycleBeginInterval = 60000; // how often to enter cycle mode
+unsigned long cycleActiveDelay = 5000; // how long to wait for digits to blank
+unsigned long cycleBeganAt;
+
+
+// ====================================================================================================================
 // Global variables for IP scroll state.
 // ====================================================================================================================
 
@@ -138,11 +157,16 @@ unsigned long ipScrollUpdatedAt;
 void setup();
 void loop();
 void loopStateDefault();
+void loopStateCycle();
 void loopStateWebserver();
 void handleClick();
+void handleDoubleClick();
 void initWiFiManager();
 void configModeCallback (WiFiManager *myWiFiManager);
 void saveConfigCallback();
+void beginCycle();
+void setCycleActiveDelay();
+void setCurrentNumberForCycle();
 void checkIP();
 void scrollIP();
 void displayIP();
@@ -183,6 +207,7 @@ void setup()
   digitalWrite(oePin, HIGH);
 
   button.attachClick(handleClick);
+  button.attachDoubleClick(handleDoubleClick);
 
   // When webserver is active, try accessing http://nixie.local
   WiFi.hostname(F("Nixie"));
@@ -213,6 +238,9 @@ void loop()
     case STATE_DEFAULT:
       loopStateDefault();
       break;
+    case STATE_CYCLE:
+      loopStateCycle();
+      break;
     case STATE_WEBSERVER:
       loopStateWebserver();
       break;
@@ -226,6 +254,11 @@ void loop()
 
 void loopStateDefault()
 {
+  if (millis() - cycleBeganAt > cycleBeginInterval) {
+    beginCycle();
+    cycleBeganAt = millis();
+  }
+
   if (millis() - numberSetAt > numberSetInterval) {
     setNextNumber();
     numberSetAt = millis();
@@ -240,6 +273,33 @@ void loopStateDefault()
   if (millis() - numberUpdatedAt > numberUpdateInterval) {
     setCurrentNumber();
     numberUpdatedAt = millis();
+  }
+}
+
+void loopStateCycle()
+{
+  switch (cycleState) {
+    case CYCLE_BEGIN:
+      // Waiting for current number to blank out
+      if (millis() - numberUpdatedAt > numberUpdateInterval) {
+        setCurrentNumber();
+        numberUpdatedAt = millis();
+      }
+      if (millis() - cycleBeganAt > cycleActiveDelay) {
+        cycleState = CYCLE_ACTIVE;
+      }
+      break;
+    case CYCLE_ACTIVE:
+      if (millis() - numberUpdatedAt > numberUpdateInterval) {
+        setCurrentNumberForCycle();
+        numberUpdatedAt = millis();
+      }
+      break;
+    case CYCLE_END:
+      currentState = STATE_DEFAULT;
+      memcpy(nextDigits, savedDigits, sizeof(savedDigits));
+      numberSetAt = millis();
+      break;
   }
 }
 
@@ -264,6 +324,14 @@ void loopStateWebserver()
 // ====================================================================================================================
 
 void handleClick()
+{
+  if (currentState == STATE_DEFAULT) {
+    beginCycle();
+    cycleBeganAt = millis();
+  }
+}
+
+void handleDoubleClick()
 {
   for (byte i = 0; i < 6; i++) {
     currentDots[i] = false;
@@ -336,6 +404,87 @@ void saveConfigCallback()
   nixie.setDecimalPoint(2, false);
   nixie.setDecimalPoint(3, false);
   nixie.setDecimalPoint(4, false);
+}
+
+
+// ====================================================================================================================
+// Cycle digits in each tube to prevent cathode poisoning. Wave animation.
+// ====================================================================================================================
+
+void beginCycle()
+{
+  currentState = STATE_CYCLE;
+
+  memcpy(savedDigits, nextDigits, sizeof(nextDigits));
+
+  for (byte i = 0; i < 6; i++) {
+    nextDigits[i] = BLANK;
+  }
+
+  setCycleActiveDelay();
+
+  cycleState = CYCLE_BEGIN;
+  cycleOffset = 0;
+}
+
+void setCycleActiveDelay()
+{
+  cycleActiveDelay = 0;
+
+  for (byte i = 0; i < 6; i++) {
+    if (currentDigits[i] == BLANK) {
+      continue;
+    }
+
+    cycleActiveDelay += (getDigitDepth(currentDigits[i]) + 1) * numberUpdateInterval;
+  }
+
+  // Give ourselves a half tube's worth of safety margin
+  cycleActiveDelay += numberUpdateInterval * 5;
+}
+
+void setCurrentNumberForCycle()
+{
+  if (cycleOffset < 6) {
+    if (currentDigits[cycleOffset] == nixieDigitStackTop) {
+      cycleOffset++;
+    }
+  } else {
+    if (currentDigits[cycleOffset - 2] == BLANK) {
+      cycleOffset++;
+    }
+  }
+
+  if (cycleOffset > 7) {
+      cycleState = CYCLE_END;
+      return;
+  }
+
+  if (cycleOffset < 6) {
+    switch (currentDigits[cycleOffset]) {
+      case nixieDigitStackTop:
+        break;
+      case BLANK:
+        currentDigits[cycleOffset] = nixieDigitStackBottom;
+        break;
+      default:
+        currentDigits[cycleOffset] = nixieDigitStack[getDigitDepth(currentDigits[cycleOffset]) + 1];
+        break;
+    }
+  }
+
+  if (cycleOffset > 1) {
+    switch (currentDigits[cycleOffset - 2]) {
+      case BLANK:
+        break;
+      case nixieDigitStackBottom:
+        currentDigits[cycleOffset - 2] = BLANK;
+        break;
+      default:
+        currentDigits[cycleOffset - 2] = nixieDigitStack[getDigitDepth(currentDigits[cycleOffset - 2]) - 1];
+        break;
+    }
+  }
 }
 
 
