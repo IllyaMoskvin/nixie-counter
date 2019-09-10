@@ -361,14 +361,13 @@ void handleDoubleClick()
   }
 
   refreshDisplay();
-
-  Serial.print(F("New state: "));
-  Serial.println(currentState);
 }
 
 void handleTripleClick()
 {
-  initWiFiManager(false);
+  if (currentState == STATE_DEFAULT) {
+    initWiFiManager(false);
+  }
 }
 
 
