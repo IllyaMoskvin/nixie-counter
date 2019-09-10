@@ -204,8 +204,9 @@ void setup()
   pinMode(oePin, OUTPUT);
   digitalWrite(oePin, HIGH);
 
-  button.attachClick(handleClick);
-  button.attachDoubleClick(handleDoubleClick);
+  // For safety, enable internal pull-up manually
+  // https://github.com/mathertel/OneButton/issues/51
+  pinMode(btnPin, INPUT_PULLUP);
 
   // When webserver is active, try accessing http://nixie.local
   WiFi.hostname(F("Nixie"));
@@ -226,6 +227,10 @@ void setup()
   server.on(F("/"), handleRoot);
   server.on(F("/update"), handleUpdate);
   server.onNotFound(handleNotFound);
+
+  // Allow input last
+  button.attachClick(handleClick);
+  button.attachDoubleClick(handleDoubleClick);
 }
 
 void loop()
