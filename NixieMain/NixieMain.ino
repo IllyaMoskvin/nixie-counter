@@ -116,7 +116,8 @@ const byte CYCLE_END = 2; // exit cycle state
 byte cycleState = CYCLE_BEGIN;
 byte cycleOffset = 0;
 
-const unsigned long cycleBeginInterval = 60000; // how often to enter cycle mode
+// TODO: Make this definable via webserver and store in EEPROM
+unsigned long cycleBeginInterval = 900000; // how often to enter cycle mode (15 min)
 unsigned long cycleBeganAt;
 
 
@@ -262,6 +263,7 @@ void loopStateDefault()
   if (millis() - cycleBeganAt > cycleBeginInterval) {
     beginCycle();
     cycleBeganAt = millis();
+    return;
   }
 
   if (millis() - numberSetAt > numberSetInterval) {
