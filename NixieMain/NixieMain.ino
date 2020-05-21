@@ -463,8 +463,8 @@ void setCurrentNumberForCycle()
   }
 
   if (cycleOffset > 7) {
-      cycleState = CYCLE_END;
-      return;
+    cycleState = CYCLE_END;
+    return;
   }
 
   if (cycleOffset < 6) {
@@ -915,7 +915,7 @@ void refreshDisplay()
     return refreshDisplayDuringButtonPress();
   }
 
-  for(int i = 0; i < 6; i++) {
+  for (int i = 0; i < 6; i++) {
     nixie.setDecimalPoint(i, currentDots[i]);
   }
 
@@ -928,7 +928,7 @@ void refreshDisplay()
 // and lighting up all the dots during a state transition.
 void refreshDisplayDuringButtonPress()
 {
-  for(int i = 0; i < 6; i++) {
+  for (int i = 0; i < 6; i++) {
     nixie.setDecimalPoint(i, true);
   }
 
