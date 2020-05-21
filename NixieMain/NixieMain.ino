@@ -771,7 +771,7 @@ void setNextNumber()
     return throwError(ERROR_RESPONSE_INVALID);
   }
 
-  DynamicJsonDocument doc(250);
+  DynamicJsonDocument doc(1000);
 
   // May require trailing \n in body to avoid delay:
   // https://forum.arduino.cc/index.php?topic=529440.30
