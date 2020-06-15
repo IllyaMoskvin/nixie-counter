@@ -68,7 +68,7 @@ ESP8266WebServer server(80);
 // Minify, then replace " with \", and % with %% in CSS, but keep %s in form
 // https://forum.arduino.cc/index.php?topic=293408.0
 // https://www.arduino.cc/reference/en/language/variables/utilities/progmem/
-const char* indexHtml PROGMEM = "<!DOCTYPE html><html><head> <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"> <link rel=\"icon\" href=\"data:,\"> <title>Nixie</title> <link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css\"/> <link href=\"https://fonts.googleapis.com/css?family=Nixie+One&display=swap\" rel=\"stylesheet\"> <style>*{box-sizing: border-box;}html{background: #ddd; font-family: sans-serif; text-align: center;}div{padding-top: 1.5em; background: #eee; border-top: 3px solid #ccc; border-bottom: 3px solid #ccc;}h1{padding: 2rem; font-size: 2rem; font-weight: 600; font-family: 'Nixie One', sans-serif;}label{display: block; margin-bottom: 0.5rem; margin-left: 1rem; text-align: left;}input[type=text]{width: 100%%; margin-bottom: 1.5rem; padding: .75rem 1rem; border: none; color: #555; font-size: .9rem;}input[type=submit]{cursor: pointer; margin: 1.5em; padding: .5rem 2rem; background: #636363; border: none; color: #fff; font-size: 1rem;}</style></head><body> <h1>Nixie</h1> <form action=\"/update\" method=\"get\"> <div> <label for=\"host\">Host</label> <input type=\"text\" name=\"host\" value=\"%s\" maxlength=\"39\" required/> <label for=\"path\">Path</label> <input type=\"text\" name=\"path\" value=\"%s\" maxlength=\"254\" required/> </div><input type=\"submit\" value=\"Update\"/> </form></body></html>";
+const char* indexHtml PROGMEM = "<!DOCTYPE html><html><head> <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"> <link rel=\"icon\" href=\"data:,\"> <title>Nixie</title> <link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css\"/> <link href=\"https://fonts.googleapis.com/css?family=Nixie+One&display=swap\" rel=\"stylesheet\"> <style>*{box-sizing: border-box;}html{background: #ddd; font-family: sans-serif; text-align: center;}div{padding-top: 1.5em; background: #eee; border-top: 3px solid #ccc; border-bottom: 3px solid #ccc;}h1{padding: 2rem; font-size: 2rem; font-weight: 600; font-family: 'Nixie One', sans-serif;}div{text-align:left;}label{display: block; margin: 0 0 0.5rem 1rem;}input[type=text],input[type=number]{width: 100%%; margin-bottom: 1.5rem; padding: .75rem 1rem; border: none; color: #555; font-size: .9rem;}input[type=submit]{cursor: pointer; margin: 1.5em; padding: .5rem 2rem; background: #636363; border: none; color: #fff; font-size: 1rem;}</style></head><body> <h1>Nixie</h1> <form action=\"/update\" method=\"get\"> <div> <label for=\"host\">Host</label> <input type=\"text\" name=\"host\" id=\"host\" value=\"%s\" maxlength=\"39\" required/> <label for=\"port\">Port</label> <input type=\"number\" name=\"port\" id=\"port\" value=\"%s\" min=\"1\" max=\"65535\" required/> <label for=\"path\">Path</label> <input type=\"text\" name=\"path\" id=\"path\" value=\"%s\" maxlength=\"254\" required/> </div><input type=\"submit\" value=\"Update\"/> </form></body></html>";
 const char* updateHtml PROGMEM = "<!DOCTYPE html><html><head> <meta http-equiv=\"refresh\" content=\"5; URL=/\"/> <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"> <link rel=\"icon\" href=\"data:,\"> <title>Nixie</title> <link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css\"/> <link href=\"https://fonts.googleapis.com/css?family=Nixie+One&display=swap\" rel=\"stylesheet\"> <style>*{box-sizing: border-box;}html{background: #ddd; font-family: sans-serif; text-align: center;}h1{padding: 2rem; font-size: 2rem; font-weight: 600; font-family: 'Nixie One', sans-serif;}</style></head><body> <h1>%S</h1> <h2>Returning to form...</h2></body></html>";
 
 // Keep this global to avoid risking giant memory holes
@@ -79,10 +79,12 @@ char bufferHtml[2000];
 // https://webmasters.stackexchange.com/questions/16996/maximum-domain-name-length
 const char apiHostDefault[40] PROGMEM = "nocache.aggregator-data.artic.edu";
 const char apiPathDefault[255] PROGMEM = "/api/v1/artworks/search?cache=false&limit=0&query[range][timestamp][gte]=now-1d";
+const unsigned int apiPortDefault PROGMEM = 80;
 
 // Config values stored in EEPROM, with defaults above
 char apiHost[40];
 char apiPath[255];
+unsigned int apiPort;
 
 // Helpers for storing values in EEPROM
 const char memEndDefined[2 + 1] = "OK";
@@ -602,25 +604,32 @@ void displayIP()
 
 void handleRoot()
 {
-  snprintf_P(bufferHtml, sizeof(bufferHtml), indexHtml, apiHost, apiPath);
+  char apiPortDisplay[5];
+  itoa(apiPort, apiPortDisplay, 10);
+  
+  // Form field order: host, port, path
+  snprintf_P(bufferHtml, sizeof(bufferHtml), indexHtml, apiHost, apiPortDisplay, apiPath);
   server.send(200, F("text/html"), bufferHtml);
 }
 
 void handleUpdate()
 {
-  if (!server.hasArg(F("host")) || !server.hasArg(F("path"))) {
+  if (!server.hasArg(F("host")) || !server.hasArg(F("path")) || !server.hasArg(F("port"))) {
     return sendUpdate(400, F("Missing param."));
   }
 
   const String & apiHostNew = server.arg(F("host"));
   const String & apiPathNew = server.arg(F("path"));
+  const String & apiPortNew = server.arg(F("port"));
 
-  if (apiHostNew == apiHost && apiPathNew == apiPath) {
-    return sendUpdate(400, F("Params not changed."));
+  if (apiHostNew.length() == 0 || apiPathNew.length() == 0 || apiPortNew.length() == 0) {
+    return sendUpdate(400, F("Param is empty."));
   }
 
-  if (apiHostNew.length() == 0 || apiPathNew.length() == 0) {
-    return sendUpdate(400, F("Param is empty."));
+  unsigned int apiPortParsed = apiPortNew.toInt();
+
+  if (apiHostNew == apiHost && apiPathNew == apiPath && apiPortParsed == apiPort) {
+    return sendUpdate(400, F("Params not changed."));
   }
 
   Serial.print(F("New host: "));
@@ -629,8 +638,13 @@ void handleUpdate()
   Serial.print(F("New path: "));
   Serial.println(apiPathNew);
 
+  Serial.print(F("New port: "));
+  Serial.println(apiPortParsed);
+
   apiHostNew.toCharArray(apiHost, sizeof(apiHost));
   apiPathNew.toCharArray(apiPath, sizeof(apiPath));
+
+  apiPort = apiPortParsed;
 
   saveParamsToEEPROM();
 
@@ -676,10 +690,11 @@ void handleNotFound()
 
 void loadParamsFromEEPROM()
 {
-  EEPROM.begin(sizeof(apiHost) + sizeof(apiPath) + sizeof(memEndCurrent));
+  EEPROM.begin(sizeof(apiHost) + sizeof(apiPath) + sizeof(apiPort) + sizeof(memEndCurrent));
   EEPROM.get(0, apiHost);
   EEPROM.get(0 + sizeof(apiHost), apiPath);
-  EEPROM.get(0 + sizeof(apiHost) + sizeof(apiPath), memEndCurrent);
+  EEPROM.get(0 + sizeof(apiHost) + sizeof(apiPath), apiPort);
+  EEPROM.get(0 + sizeof(apiHost) + sizeof(apiPath) + sizeof(apiPort), memEndCurrent);
   EEPROM.end();
 
   // Uncomment to simulate EEPROM read fail:
@@ -691,6 +706,7 @@ void loadParamsFromEEPROM()
     Serial.println(F("Failed to load params from EEPROM, using defaults..."));
     strcpy_P(apiHost, apiHostDefault);
     strcpy_P(apiPath, apiPathDefault);
+    apiPort = apiPortDefault;
     saveParamsToEEPROM();
   }
 
@@ -699,14 +715,18 @@ void loadParamsFromEEPROM()
 
   Serial.print(F("Path: "));
   Serial.println(apiPath);
+  
+  Serial.print(F("Port: "));
+  Serial.println(apiPort);
 }
 
 void saveParamsToEEPROM()
 {
-  EEPROM.begin(sizeof(apiHost) + sizeof(apiPath) + sizeof(memEndDefined));
+  EEPROM.begin(sizeof(apiHost) + sizeof(apiPath) + sizeof(apiPort) + sizeof(memEndDefined));
   EEPROM.put(0, apiHost);
   EEPROM.put(0 + sizeof(apiHost), apiPath);
-  EEPROM.put(0 + sizeof(apiHost) + sizeof(apiPath), memEndDefined);
+  EEPROM.put(0 + sizeof(apiHost) + sizeof(apiPath), apiPort);
+  EEPROM.put(0 + sizeof(apiHost) + sizeof(apiPath) + sizeof(apiPort), memEndDefined);
   EEPROM.end();
 }
 
@@ -736,7 +756,7 @@ void setNextNumber()
 {
   WiFiClient client;
 
-  if (!client.connect(apiHost, 80)) {
+  if (!client.connect(apiHost, apiPort)) {
     return throwError(ERROR_CONNECTION_FAILED);
   }
 
@@ -744,6 +764,7 @@ void setNextNumber()
   client.print(F("GET "));
   client.print(apiPath);
   client.println(F(" HTTP/1.1"));
+  // TODO: Add ability to set Host "header" separately from connection host
   client.print(F("Host: "));
   client.println(apiHost);
   client.println(F("Connection: close"));
