@@ -10,7 +10,7 @@
 #include <ESP8266WiFi.h>
 #include <EEPROM.h>
 
-#include <WiFiClientSecure.h>
+#include <WiFiClient.h>
 
 // https://github.com/tzapu/WiFiManager
 #include <DNSServer.h>
@@ -734,12 +734,9 @@ void throwError(const byte errorCode)
 
 void setNextNumber()
 {
-  WiFiClientSecure client;
+  WiFiClient client;
 
-  // Turn off certificate and/or fingerprint checking
-  client.setInsecure();
-
-  if (!client.connect(apiHost, 443)) {
+  if (!client.connect(apiHost, 80)) {
     return throwError(ERROR_CONNECTION_FAILED);
   }
 
