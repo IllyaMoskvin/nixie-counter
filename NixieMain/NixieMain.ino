@@ -10,9 +10,7 @@
 #include <ESP8266WiFi.h>
 #include <EEPROM.h>
 
-// https://arduinojson.org/v6/example/http-client/
 #include <WiFiClientSecure.h>
-#include <ArduinoJson.h>
 
 // https://github.com/tzapu/WiFiManager
 #include <DNSServer.h>
@@ -28,7 +26,6 @@ const byte ERROR_CONNECTION_FAILED = 1; // cannot connect to API host via port
 const byte ERROR_REQUEST_FAILED = 2; // cannot send request to API
 const byte ERROR_RESPONSE_UNEXPECTED = 3; // first line of API response was not HTTP/1.1 200 OK
 const byte ERROR_RESPONSE_INVALID = 4; // cannot find the end of headers in API response
-const byte ERROR_PARSE_JSON = 5; // cannot parse valid json from API response
 
 
 // ====================================================================================================================
@@ -771,21 +768,11 @@ void setNextNumber()
     return throwError(ERROR_RESPONSE_INVALID);
   }
 
-  DynamicJsonDocument doc(1000);
-
-  // May require trailing \n in body to avoid delay:
+  // End body with trailing \n to avoid 5 second delay:
   // https://forum.arduino.cc/index.php?topic=529440.30
-  DeserializationError error = deserializeJson(doc, client);
-
-  if (error) {
-    client.stop();
-    return throwError(ERROR_PARSE_JSON);
-  }
+  long result = client.parseInt();
 
   client.stop();
-
-  // TODO: Look into dehardcoding this from our API?
-  long result = doc[F("pagination")][F("total")];
 
   setDigitsFromNumber(result, nextDigits);
 }
