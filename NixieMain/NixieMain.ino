@@ -511,7 +511,7 @@ void checkIP()
   // memcpy(currentIP, "192.168.123.245", sizeof(currentIP));
   // memcpy(currentIP, "10.0.0.2", sizeof(currentIP));
 
-  if (currentIP == oldIP) {
+  if (strcmp(currentIP, oldIP) == 0) {
     return;
   }
 
