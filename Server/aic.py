@@ -1,12 +1,8 @@
-from http.server import HTTPServer, BaseHTTPRequestHandler
+import nixie
 import requests
 
-class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
-
-    protocol_version = 'HTTP/1.1'
-
-    def do_GET(self):
-
+class AICHTTPRequestHandler(nixie.NixieHTTPRequestHandler):
+    def get_data(self):
         response = requests.get('https://nocache.aggregator-data.artic.edu/api/v1/artworks/search', {
             # Bypass an internal Elasticsearch cache (use only for realtime applications)
             'cache': 'false',
@@ -20,17 +16,6 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
 
         data = response.json()
 
-        body = data['pagination']['total']
+        return data['pagination']['total']
 
-        body = str(body) + '\n'
-
-        self.send_response(200)
-        self.send_header('Content-Length', str(len(body)))
-        self.end_headers()
-
-        self.wfile.write(str.encode(body))
-
-# https://www.speedguide.net/port.php?port=4224
-httpd = HTTPServer(('', 4224), SimpleHTTPRequestHandler)
-
-httpd.serve_forever()
+nixie.serve(AICHTTPRequestHandler)
