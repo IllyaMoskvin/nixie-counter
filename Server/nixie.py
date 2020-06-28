@@ -1,8 +1,9 @@
-from http.server import HTTPServer, BaseHTTPRequestHandler
+from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 
 def serve(handler):
+    # https://stackoverflow.com/questions/43146298/http-request-from-chrome-hangs-python-webserver
     # https://www.speedguide.net/port.php?port=4224
-    httpd = HTTPServer(('', 4224), handler)
+    httpd = ThreadingHTTPServer(('', 4224), handler)
     httpd.serve_forever()
 
 class NixieHTTPRequestHandler(BaseHTTPRequestHandler):
