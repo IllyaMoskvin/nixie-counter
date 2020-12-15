@@ -1,6 +1,5 @@
 #include <NixieDriver_ESP.h>
 
-//const int nixieDigits[] = {3, 8, 9, 4, 0, 5, 2, 6, 1};
 const int nixieDigits[] = {1, 6, 2, 7, 5, 0, 4, 9, 8, 3};
 
 const int dataPin = 12;

@@ -11,8 +11,6 @@ nixie_esp nixie(dataPin, clockPin);
 
 void setup()
 {
-  // Uncomment to see WiFiManager data:
-  // Serial.setDebugOutput(true);
   Serial.begin(115200);
 
   // Set initial pin states
@@ -37,9 +35,9 @@ void loop()
     nixie.setDecimalPoint(3, true);
     nixie.setDecimalPoint(4, true);
     nixie.setDecimalPoint(5, true); // does nothing, but is allowed?
-    
+
     nixie.displayDigits(1, 2, 3, 4, 5, 6);
-    
+
     displayRefreshedAt = millis();
   }
 }

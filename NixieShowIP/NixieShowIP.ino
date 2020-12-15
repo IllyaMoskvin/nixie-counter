@@ -98,7 +98,7 @@ void loop()
     switch (scrollState) {
       case SCROLL_REST_LEFT:
         scrollState = SCROLL_MOVE_LEFT;
-        isScrollResting = false;  
+        isScrollResting = false;
         break;
       case SCROLL_MOVE_LEFT:
         if (scrollOffset + 6 == ipDigitCount) {
@@ -124,7 +124,7 @@ void loop()
 
     scrollUpdatedAt = millis();
   }
-  
+
   if (millis() - displayRefreshedAt > displayRefreshInterval) {
     displayIp(ip, scrollOffset);
 

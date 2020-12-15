@@ -606,7 +606,7 @@ void handleRoot()
 {
   char apiPortDisplay[5];
   itoa(apiPort, apiPortDisplay, 10);
-  
+
   // Form field order: host, port, path
   snprintf_P(bufferHtml, sizeof(bufferHtml), indexHtml, apiHost, apiPortDisplay, apiPath);
   server.send(200, F("text/html"), bufferHtml);
@@ -715,7 +715,7 @@ void loadParamsFromEEPROM()
 
   Serial.print(F("Path: "));
   Serial.println(apiPath);
-  
+
   Serial.print(F("Port: "));
   Serial.println(apiPort);
 }
