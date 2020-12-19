@@ -1,0 +1,1 @@
+**Note:** `NixieMain` is the final sketch. It contains the code that's actually running on the finished counter. All other sketches here are experimental. Their code was incorporated into `NixieMain`, but any improvements or fixes made to that code in `NixieMain` were not back-ported to the experimental sketches. Reference these experiments at your own risk!
