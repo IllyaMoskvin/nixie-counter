@@ -2,6 +2,29 @@
 
 > An ESP8266-based 6-digit IN-12B nixie counter that queries the Art Institute of Chicago's API
 
+<img src="images/gallery/00-hero.jpg">
+
+
+## Photo Gallery
+
+<table>
+    <tr>
+        <td><img src="images/gallery/01-front.jpg"></td>
+        <td><img src="images/gallery/02-three-quarters.jpg"></td>
+        <td><img src="images/gallery/03-side.jpg"></td>
+    </tr>
+    <tr>
+        <td><img src="images/gallery/04-back.jpg"></td>
+        <td><img src="images/gallery/05-bottom.jpg"></td>
+        <td><img src="images/gallery/06-button.jpg"></td>
+    </tr>
+    <tr>
+        <td><img src="images/gallery/07-lid-off.jpg"></td>
+        <td><img src="images/gallery/08-inside-left.jpg"></td>
+        <td><img src="images/gallery/09-inside-right.jpg"></td>
+    </tr>
+</table>
+
 
 ## Inspiration
 
