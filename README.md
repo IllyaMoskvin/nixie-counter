@@ -2,7 +2,7 @@
 
 > An ESP8266-based 6-digit IN-12B nixie counter that queries the Art Institute of Chicago's API
 
-<a href="images/gallery/00-hero.jpg">
+<a href="https://raw.githubusercontent.com/IllyaMoskvin/aic-nixie/master/images/gallery/00-hero.jpg">
     <img src="images/gallery/00-hero-tn.jpg">
 </a>
 
@@ -12,51 +12,51 @@
 <table>
     <tr>
         <td>
-            <a href="images/gallery/01-front.jpg">
+            <a href="https://raw.githubusercontent.com/IllyaMoskvin/aic-nixie/master/images/gallery/01-front.jpg">
                 <img src="images/gallery/01-front-tn.jpg">
             </a>
         </td>
         <td>
-            <a href="images/gallery/02-three-quarters.jpg">
+            <a href="https://raw.githubusercontent.com/IllyaMoskvin/aic-nixie/master/images/gallery/02-three-quarters.jpg">
                 <img src="images/gallery/02-three-quarters-tn.jpg">
             </a>
         </td>
         <td>
-            <a href="images/gallery/03-side.jpg">
+            <a href="https://raw.githubusercontent.com/IllyaMoskvin/aic-nixie/master/images/gallery/03-side.jpg">
                 <img src="images/gallery/03-side-tn.jpg">
             </a>
         </td>
     </tr>
     <tr>
         <td>
-            <a href="images/gallery/04-back.jpg">
+            <a href="https://raw.githubusercontent.com/IllyaMoskvin/aic-nixie/master/images/gallery/04-back.jpg">
                 <img src="images/gallery/04-back-tn.jpg">
             </a>
         </td>
         <td>
-            <a href="images/gallery/05-bottom.jpg">
+            <a href="https://raw.githubusercontent.com/IllyaMoskvin/aic-nixie/master/images/gallery/05-bottom.jpg">
                 <img src="images/gallery/05-bottom-tn.jpg">
             </a>
         </td>
         <td>
-            <a href="images/gallery/06-button.jpg">
+            <a href="https://raw.githubusercontent.com/IllyaMoskvin/aic-nixie/master/images/gallery/06-button.jpg">
                 <img src="images/gallery/06-button-tn.jpg">
             </a>
         </td>
     </tr>
     <tr>
         <td>
-            <a href="images/gallery/07-lid-off.jpg">
+            <a href="https://raw.githubusercontent.com/IllyaMoskvin/aic-nixie/master/images/gallery/07-lid-off.jpg">
                 <img src="images/gallery/07-lid-off-tn.jpg">
             </a>
         </td>
         <td>
-            <a href="images/gallery/08-inside-left.jpg">
+            <a href="https://raw.githubusercontent.com/IllyaMoskvin/aic-nixie/master/images/gallery/08-inside-left.jpg">
                 <img src="images/gallery/08-inside-left-tn.jpg">
             </a>
         </td>
         <td>
-            <a href="images/gallery/09-inside-right.jpg">
+            <a href="https://raw.githubusercontent.com/IllyaMoskvin/aic-nixie/master/images/gallery/09-inside-right.jpg">
                 <img src="images/gallery/09-inside-right-tn.jpg">
             </a>
         </td>
