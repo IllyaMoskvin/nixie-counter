@@ -2,26 +2,64 @@
 
 > An ESP8266-based 6-digit IN-12B nixie counter that queries the Art Institute of Chicago's API
 
-<img src="images/gallery/00-hero.jpg">
+<a href="images/gallery/00-hero.jpg">
+    <img src="images/gallery/00-hero-tn.jpg">
+</a>
 
 
 ## Photo Gallery
 
 <table>
     <tr>
-        <td><img src="images/gallery/01-front.jpg"></td>
-        <td><img src="images/gallery/02-three-quarters.jpg"></td>
-        <td><img src="images/gallery/03-side.jpg"></td>
+        <td>
+            <a href="images/gallery/01-front.jpg">
+                <img src="images/gallery/01-front-tn.jpg">
+            </a>
+        </td>
+        <td>
+            <a href="images/gallery/02-three-quarters.jpg">
+                <img src="images/gallery/02-three-quarters-tn.jpg">
+            </a>
+        </td>
+        <td>
+            <a href="images/gallery/03-side.jpg">
+                <img src="images/gallery/03-side-tn.jpg">
+            </a>
+        </td>
     </tr>
     <tr>
-        <td><img src="images/gallery/04-back.jpg"></td>
-        <td><img src="images/gallery/05-bottom.jpg"></td>
-        <td><img src="images/gallery/06-button.jpg"></td>
+        <td>
+            <a href="images/gallery/04-back.jpg">
+                <img src="images/gallery/04-back-tn.jpg">
+            </a>
+        </td>
+        <td>
+            <a href="images/gallery/05-bottom.jpg">
+                <img src="images/gallery/05-bottom-tn.jpg">
+            </a>
+        </td>
+        <td>
+            <a href="images/gallery/06-button.jpg">
+                <img src="images/gallery/06-button-tn.jpg">
+            </a>
+        </td>
     </tr>
     <tr>
-        <td><img src="images/gallery/07-lid-off.jpg"></td>
-        <td><img src="images/gallery/08-inside-left.jpg"></td>
-        <td><img src="images/gallery/09-inside-right.jpg"></td>
+        <td>
+            <a href="images/gallery/07-lid-off.jpg">
+                <img src="images/gallery/07-lid-off-tn.jpg">
+            </a>
+        </td>
+        <td>
+            <a href="images/gallery/08-inside-left.jpg">
+                <img src="images/gallery/08-inside-left-tn.jpg">
+            </a>
+        </td>
+        <td>
+            <a href="images/gallery/09-inside-right.jpg">
+                <img src="images/gallery/09-inside-right-tn.jpg">
+            </a>
+        </td>
     </tr>
 </table>
 
