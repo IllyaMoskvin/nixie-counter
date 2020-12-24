@@ -2,6 +2,10 @@
 
 > An ESP8266-based 6-digit IN-12B nixie counter that queries the Art Institute of Chicago's API
 
+<a href="https://raw.githubusercontent.com/IllyaMoskvin/aic-nixie/master/images/gallery/00-hero.jpg">
+    <img src="images/gallery/00-hero-tn.jpg">
+</a>
+
 While working as a web developer at the Art Institue of Chicago, I got the idea that it would be neat to have some physical manifestation of the work we were doing. My work at the time focused on [interconnecting systems](https://mw19.mwconf.org/paper/building-a-data-hub-microservices-apis-and-system-integration-at-the-art-institute-of-chicago/) and creating a [public API](https://www.artic.edu/open-access/public-api), so I decided to make a counter that would show the number of artworks that have been updated in our API each day. Further, I wanted the counter to be a piece of art in its own right. It had to feel high quality, analog, and hand made.
 
 Long story short, what you find here is the end result. My nixie counter connects to Wi-Fi using an ESP8266. It queries a Python microservice that's running on e.g. my desktop computer and displays whatever number gets returned. This allows me to easily change what the counter displays, without having to reflash it.
@@ -10,9 +14,6 @@ Over time, what this project represents has shifted in practice to be less about
 
 This repository contains a write-up of the project, along with designs for the enclosure and all related code. This was my first woodworking and Arduino project. As such, this write-up is written from the perspective of a beginner. Some parts here may seem obvious to more seasoned makers. If you spot any mistakes or misconceptions, please [open an issue](https://github.com/IllyaMoskvin/aic-nixie/issues).
 
-<a href="https://raw.githubusercontent.com/IllyaMoskvin/aic-nixie/master/images/gallery/00-hero.jpg">
-    <img src="images/gallery/00-hero-tn.jpg">
-</a>
 
 
 ## Photo Gallery
