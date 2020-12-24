@@ -20,6 +20,7 @@ This repository contains a write-up of the project, along with designs for the e
  * [Photo Gallery](#photo-gallery)
  * [Inspiration](#inspiration)
  * [Design](#design)
+ * [Components](#components)
 
 
 ## Photo Gallery
@@ -109,3 +110,8 @@ There are a couple things I'd change here, too. I'd make the two Forstner holes 
 In terms of the design process, it was just a cycle of measuring things with digital calipers, nudging vectors around, and doing mental math. I made a paper prototype at one point to get a sense of scale and to sanity-check that the nixie tubes would indeed fit into the cutouts. Overall, I think the final product turned out to be very close to the design, [which is great](https://www.oxfordreference.com/view/10.1093/acref/9780199539536.001.0001/acref-9780199539536-e-1418).
 
 Please note that the pattern for the front panel cutout was derived from [IN-12.svg](http://reboots.g-cipher.net/time/IN-12.svg) shared by [Engram Enterprises](http://reboots.g-cipher.net/) as part of their [Amy Time! Nixie Tube Clock](http://reboots.g-cipher.net/time/) project. Thank you!
+
+
+## Components
+
+As a newcomer to electronics, I knew that I'd have to use off-the-shelf parts where possible, within reason. I had to balance learning new things versus getting this project done, and there was plenty to learn here already. Plus, nixie tubes are high-voltage devices. I wanted to minimize the risk of harming components or myself.
