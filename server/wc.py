@@ -1,10 +1,19 @@
 import nixie
+import sys
 import re
 
 class WordCountHTTPRequestHandler(nixie.NixieHTTPRequestHandler):
 
+    file_path = '../README.md'
+
+    def __init__(self, *args, **kwargs):
+        if len(sys.argv) > 1:
+            self.file_path = sys.argv[1]
+
+        super().__init__(*args, **kwargs)
+
     def get_data(self):
-        with open ('../README.md', 'r') as myfile:
+        with open(self.file_path, 'r') as myfile:
             data = myfile.read()
 
         return self.count_words_in_markdown(data)
