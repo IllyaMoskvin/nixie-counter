@@ -26,6 +26,7 @@ This repository contains a write-up of the project, along with designs for the e
    * [Doayee's Nixie Driver](#doayees-nixie-driver)
    * [Acrylic-Mounted PCBs](#acrylic-mounted-pcbs)
      * [Adafruit HUZZAH ESP8266 Breakout](#adafruit-huzzah-esp8266-breakout)
+     * [HV PSU: YanZeyuan’s NCH6100HV](#hv-psu-yanzeyuans-nch6100hv)
 
 
 
@@ -168,7 +169,7 @@ Speaking of LEDs, there's a single, stand-alone blue LED on the driver board tha
 Aside from the nixie driver, all of the other PCBs are mounted on a piece of laser-cut acrylic that's easy to remove from the enclosure for reprogramming. I'll discuss the particulars of this design in more depth below, but for now, here is a photo of the PCBs for reference. From left to right:
 
   * [Adafruit HUZZAH ESP8266 Breakout](#adafruit-huzzah-esp8266-breakout)
-  * YanZeyuan’s NCH6100HV
+  * [YanZeyuan’s NCH6100HV](#hv-psu-yanzeyuans-nch6100hv)
   * DROK LM2596
 
 
@@ -179,3 +180,12 @@ The [Adafruit HUZZAH ESP8266 Breakout](https://www.adafruit.com/product/2471) is
 At the time, I wanted a board without a USB output, since I thought that I wouldn't need it. In retrospect, it probably wouldn't have made any difference if I had a board with a USB socket instead of FTDI pins. In any case, I had no trouble using an [Adafruit FTDI Friend](https://www.adafruit.com/product/284) to program the device.
 
 For a Wi-Fi-enabled Arduino-compatible solution, boards built on the ESP8266 or ESP32 chips seem to be the best options, with regard to price and community support. I haven't felt the need to experiment with an ESP32 yet. The ESP8266 was enough for this project.
+
+
+#### HV PSU: YanZeyuan’s NCH6100HV
+
+Nixie tubes are high-voltage, low-current devices. For the IN-12B, each lit digit only draws about 2.5-3.0 mA, but it takes about 170V strike voltage to light up that digit, and about 140V to sustain it. So we need a specialized high voltage power supply to convert the wall-wart voltage up to what our nixies require.
+
+For this project, I used [YanZeyuan’s NCH6100HV](https://www.nixieclock.org/?p=493). I learned about it via [Kevin Lee's "Nixie Tube Clock"](https://0x7d.com/2017/nixie-tube-clock/#HV_Power_Supply) project log. His write-up contains some great information about building a power supply from scratch. As a newbie, most of it is way over my head.
+
+The NCH6100HV was perfect for this project. It had a small footprint and two M2 mounting holes for standoffs, so it was easy to attach to the acrylic. It came with solderless terminal blocks, which eased assembly. Its output voltage could be adjusted to mitigate overheating. The recommended input power supply for it was DC12V 2A. After doing the math to account for the other components, this was actually enough to power the entire counter.
