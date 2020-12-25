@@ -24,6 +24,7 @@ This repository contains a write-up of the project, along with designs for the e
  * [Components](#components)
    * [Nixie Tubes: IN-12B](#nixie-tubes-in-12b)
    * [Doayee's Nixie Driver](#doayees-nixie-driver)
+   * [Acrylic-Mounted PCBs](#acrylic-mounted-pcbs)
 
 
 
@@ -156,3 +157,15 @@ Lastly, it seems that Pin 12 on the left-most tube is not connected to anything,
 Also, it's worthwhile to note that Doayee's driver includes LED backlights for each tube. I decided that RGB backlighting would not make a good match for the all-wood case design, so I stopped my attempts to make them work pretty early on in the project, but that decision was also made out of caution. While the nixie-related components seem to work fine on 3.3V logic, these LEDs are color-controlled via a PWM signal from the pins. From what I can tell, connecting LEDs meant for 5V to 3.3V PWM signals causes them to be much dimmer than they were meant to be.
 
 Speaking of LEDs, there's a single, stand-alone blue LED on the driver board that I think is simply meant to be an indicator that the board is recieving power. That LED is ridiculously bright. Out-of-the-box, you could see its light leaking out behind the tubes, even in a bright room. To fix this, I covered the LED with several layers of opaque black nail polish.
+
+
+
+### Acrylic-Mounted PCBs
+
+<img src="images/acrylic-pcbs.jpg">
+
+Aside from the nixie driver, all of the other PCBs are mounted on a piece of laser-cut acrylic that's easy to remove from the enclosure for reprogramming. I'll discuss the particulars of this design in more depth below, but for now, here is a photo of the PCBs for reference. From left to right:
+
+  * Adafruit HUZZAH ESP8266 Breakout
+  * YanZeyuan’s NCH6100HV
+  * DROK LM2596
