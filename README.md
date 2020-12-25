@@ -25,6 +25,7 @@ This repository contains a write-up of the project, along with designs for the e
    * [Nixie Tubes: IN-12B](#nixie-tubes-in-12b)
    * [Doayee's Nixie Driver](#doayees-nixie-driver)
    * [Acrylic-Mounted PCBs](#acrylic-mounted-pcbs)
+     * [Adafruit HUZZAH ESP8266 Breakout](#adafruit-huzzah-esp8266-breakout)
 
 
 
@@ -166,6 +167,15 @@ Speaking of LEDs, there's a single, stand-alone blue LED on the driver board tha
 
 Aside from the nixie driver, all of the other PCBs are mounted on a piece of laser-cut acrylic that's easy to remove from the enclosure for reprogramming. I'll discuss the particulars of this design in more depth below, but for now, here is a photo of the PCBs for reference. From left to right:
 
-  * Adafruit HUZZAH ESP8266 Breakout
+  * [Adafruit HUZZAH ESP8266 Breakout](#adafruit-huzzah-esp8266-breakout)
   * YanZeyuan’s NCH6100HV
   * DROK LM2596
+
+
+#### Adafruit HUZZAH ESP8266 Breakout
+
+The [Adafruit HUZZAH ESP8266 Breakout](https://www.adafruit.com/product/2471) is the Arduino "brain" of the counter. There are many [ESP8266 development boards](https://makeradvisor.com/best-esp8266-wi-fi-development-board/) out there. I chose this one for the form factor, pinout, and standoffs. It seemed like the just-enough-frills option. I liked that it could handle being connected to two sources of power with no trouble. That made it possible to flash the counter and monitor serial output while leaving it plugged into the wall.
+
+At the time, I wanted a board without a USB output, since I thought that I wouldn't need it. In retrospect, it probably wouldn't have made any difference if I had a board with a USB socket instead of FTDI pins. In any case, I had no trouble using an [Adafruit FTDI Friend](https://www.adafruit.com/product/284) to program the device.
+
+For a Wi-Fi-enabled Arduino-compatible solution, boards built on the ESP8266 or ESP32 chips seem to be the best options, with regard to price and community support. I haven't felt the need to experiment with an ESP32 yet. The ESP8266 was enough for this project.
