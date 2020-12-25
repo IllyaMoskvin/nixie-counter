@@ -15,6 +15,7 @@ Over time, what this project represents has shifted in practice to be less about
 This repository contains a write-up of the project, along with designs for the enclosure and all related code. This was my first woodworking and Arduino project. As such, this write-up is written from the perspective of a beginner. Some parts here may seem obvious to more seasoned makers. If you spot any mistakes or misconceptions, please [open an issue](https://github.com/IllyaMoskvin/aic-nixie/issues).
 
 
+
 ## Table of Contents
 
  * [Photo Gallery](#photo-gallery)
@@ -22,6 +23,7 @@ This repository contains a write-up of the project, along with designs for the e
  * [Design](#design)
  * [Components](#components)
    * [Nixie Tubes: IN-12B](#nixie-tubes-in-12b)
+
 
 
 ## Photo Gallery
@@ -81,6 +83,7 @@ This repository contains a write-up of the project, along with designs for the e
 </table>
 
 
+
 ## Inspiration
 
 Without exaggeration, I looked at hundreds of nixie clocks while designing this counter. The most direct inspiration for this project turned out to be a clock made by [NixieDream](https://www.etsy.com/shop/NixieDream) on Etsy. I don't know when exactly this clock was made, but by the time I found it through Pinterest in mid-February 2019, it had already been sold.
@@ -92,6 +95,7 @@ What did I like about this design? I loved the idea of having the front face of 
 That said, there were things about it I wanted to change. For one, I did not like how deep the nixie tubes sat within the front face. Each nixie tube has a stack of digits in it. Watching the digits change conveys a sense of dimensionality, which gets lost somewhat when the tubes are set so deep. I wanted to clean up the design by moving the button(s) to the rear and hiding the seams between the pieces of wood. Lastly, I wanted to reduce the footprint of this design by foreshortening the back, giving it a more square profile.
 
 Taken in sum, these changes promised to be a challenge, both in terms of woodworking and component layout. Through these changes, my intention was to make my counter stand on its own—in conversation with NixieDream's clock, but not merely a remix. Here's hoping that I succeeded!
+
 
 
 ## Design
@@ -111,6 +115,7 @@ There are a couple things I'd change here, too. I'd make the two Forstner holes 
 In terms of the design process, it was just a cycle of measuring things with digital calipers, nudging vectors around, and doing mental math. I made a paper prototype at one point to get a sense of scale and to sanity-check that the nixie tubes would indeed fit into the cutouts. Overall, I think the final product turned out to be very close to the design, [which is great](https://www.oxfordreference.com/view/10.1093/acref/9780199539536.001.0001/acref-9780199539536-e-1418).
 
 Please note that the pattern for the front panel cutout was derived from [IN-12.svg](http://reboots.g-cipher.net/time/IN-12.svg) shared by [Engram Enterprises](http://reboots.g-cipher.net/) as part of their [Amy Time! Nixie Tube Clock](http://reboots.g-cipher.net/time/) project. Thank you!
+
 
 
 ## Components
