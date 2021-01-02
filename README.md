@@ -28,6 +28,7 @@ This repository contains a write-up of the project, along with designs for the e
      * [Adafruit HUZZAH ESP8266 Breakout](#adafruit-huzzah-esp8266-breakout)
      * [HV PSU: YanZeyuan’s NCH6100HV](#hv-psu-yanzeyuans-nch6100hv)
      * [LV PSU: DROK LM2596](#lv-psu-drok-lm2596)
+ * [Assembly](#assembly)
 
 
 
@@ -199,3 +200,34 @@ The NCH6100HV takes care of powering the nixies, but we still need something to 
 To be honest, I chose this specific unit because it looked nice. From what I knew, it ticked all the boxes in terms of electrical specs, and it had the right form factor and stand-off holes for mounting on the acrylic—but so did a lot of other units like it. This one looked nice to boot. It also ran cool, which is a problem for [some voltage converters](https://electronics.stackexchange.com/questions/251914/lm2596-buck-converter-overheats-converting-36dc-5dc-at-600ma).
 
 Similar to the Doayee nixie driver, this board had an LED to indicate that it was receiving power. It was also too bright, causing some light to leak through the tubes. I covered it up with some black nail polish.
+
+
+
+## Assembly
+
+I neglected to take in-progress photos while making the counter, but these should help illustrate how it was assembled:
+
+<table>
+    <tr>
+        <td>
+            <a href="https://raw.githubusercontent.com/IllyaMoskvin/aic-nixie/master/images/photos/07-lid-off.jpg">
+                <img src="images/photos/07-lid-off-tn.jpg">
+            </a>
+        </td>
+        <td>
+            <a href="https://raw.githubusercontent.com/IllyaMoskvin/aic-nixie/master/images/photos/10-nixie-mounts.jpg">
+                <img src="images/photos/10-nixie-mounts-tn.jpg">
+            </a>
+        </td>
+        <td>
+            <a href="https://raw.githubusercontent.com/IllyaMoskvin/aic-nixie/master/images/photos/11-acrylic-plate.jpg">
+                <img src="images/photos/11-acrylic-plate-tn.jpg">
+            </a>
+        </td>
+        <td>
+            <a href="https://raw.githubusercontent.com/IllyaMoskvin/aic-nixie/master/images/photos/12-screw-indents.jpg">
+                <img src="images/photos/12-screw-indents-tn.jpg">
+            </a>
+        </td>
+    </tr>
+</table>
