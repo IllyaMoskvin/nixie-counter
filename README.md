@@ -231,3 +231,5 @@ I neglected to take in-progress photos while making the counter, but these shoul
         </td>
     </tr>
 </table>
+
+*To be continued...*
