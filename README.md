@@ -29,6 +29,7 @@ This repository contains a write-up of the project, along with designs for the e
      * [HV PSU: YanZeyuan’s NCH6100HV](#hv-psu-yanzeyuans-nch6100hv)
      * [LV PSU: DROK LM2596](#lv-psu-drok-lm2596)
  * [Assembly](#assembly)
+   * [Acrylic Plate for PCBs](#acrylic-plate-for-pcbs)
 
 
 
@@ -168,7 +169,7 @@ Speaking of LEDs, there's a single, stand-alone blue LED on the driver board tha
 
 <img src="images/acrylic-pcbs.jpg">
 
-Aside from the nixie driver, all of the other PCBs are mounted on a piece of laser-cut acrylic that's easy to remove from the enclosure for reprogramming. I'll discuss the particulars of this design in more depth below, but for now, here is a photo of the PCBs for reference. From left to right:
+Aside from the nixie driver, all of the other PCBs are mounted on a piece of laser-cut acrylic that's easy to remove from the enclosure for reprogramming. I'll discuss the particulars of this design in more depth [below](#acrylic-plate-for-pcbs), but for now, here is a photo of the PCBs for reference. From left to right:
 
   * [Adafruit HUZZAH ESP8266 Breakout](#adafruit-huzzah-esp8266-breakout)
   * [YanZeyuan’s NCH6100HV](#hv-psu-yanzeyuans-nch6100hv)
@@ -231,5 +232,19 @@ I neglected to take in-progress photos while making the counter, but these shoul
         </td>
     </tr>
 </table>
+
+The actual steps for the assembly were pretty typical from a laser cutting and woodworking perspective. In this section, I'll try to skim over the basics and focus on the interesting stuff: the "gotchas" and the design considerations.
+
+
+### Acrylic Plate for PCBs
+
+As mentioned in [Components](#acrylic-mounted-pcbs), all of the PCBs aside from the driver were mounted on a laser-cut piece of 3mm acrylic using 6mm nylon standoffs, nuts, and screws: 2 x M2 for NCH6100HV, 4 x M2.5 for ESP8266, and 4 x M3 for LM2596. I used the laser to etch indentations for two #6-32 nuts into the acrylic. These nuts were used to attach the acrylic plate to the inside of the enclosure via two decorative screws. This assembly was actually the first part I fabricated, before I started working on the wood enclosure.
+
+The design intent behind mounting the PCBs to a separate component was threefold. First, I didn't trust myself to drill the pilot holes for the standoffs directly into the wood with enough precision. Secondly, I wanted to make it easy to pull the ESP8266 out of the enclosure, while leaving it connected, allowing easy access to FTDI pins and SMD buttons for development. Thirdly, I liked that this approach allowed the acrylic piece to be easily modified, without affecting the rest of the enclosure.
+
+Unfortunately, this last point didn't really work out how I expected: during design, I forgot to account for the fact that the screw heads would stick out, pushing the acrylic piece away from the wood to which it was meant to be mounted. Before the glue-up, this was easy to remedy by drilling some indentations into the wood, but now that the counter is assembled, it would be difficult to use the same fix, if I wanted to change the acrylic piece.
+
+One solution might be to engrave circular indentations for the screw heads on the other side of the acrylic, similar to what was done for the #6 nuts. Registration could be an issue, but in this case, we care more about depth than XY alignment. The indentations could be made oversized to leave room for error. The acrylic might need to be thicker, too.
+
 
 *To be continued...*
