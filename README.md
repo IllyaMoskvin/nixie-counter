@@ -31,6 +31,7 @@ This repository contains a write-up of the project, along with designs for the e
  * [Assembly](#assembly)
    * [Acrylic Plate for PCBs](#acrylic-plate-for-pcbs)
    * [Walnut Wood Enclosure](#walnut-wood-enclosure)
+   * [Wiring](#wiring)
 
 
 
@@ -275,6 +276,19 @@ Overall, I had a lot of trouble with the #6-32 and M3 brass wood inserts. They a
 It was time to add a finish to the wood. First, I wiped it down with mineral spirits to remove any tape residue. Then, I sanded it down with 120, 180, 220, and 320 grit sandpaper, sanding along the grain. This removed all left-over planer marks. Next, I wet the wood with water to raise the grain, waited for it to dry, and knocked down the grain by sanding with 320 grit again. Finally, I applied [Minwax Tung Oil Finish](https://www.minwax.com/wood-products/specialty-finishes/minwax-tung-oil-finish) with a rag. I wet-sanded with 320 grit for a third time, and wiped the excess finish. Doing this creates a [slurry of sanding dust](https://www.woodworkerssource.com/blog/woodworking-101/tips-tricks/heres-a-secret-to-a-better-wood-finish-on-walnut/), which gets forced into the pores, where it acts as a [pore filler](https://www.popularwoodworking.com/finishing/30921/), making the grain pop and creating a smoother finish.
 
 If I recall correctly, I only applied a single coat of finish to the enclosure. I like how it turned out. It's silky smooth to the touch. When using an in-the-wood finish on hardwood, I think it really pays to sand down past #220 and knock down the grain. I'd have to experiment with how that affects stain or dye absorbtion, but that wasn't relevant for this project. I do wonder how the decision to avoid stain will affect the counter as it ages. Looking at it now, over a year after it was finished, it appears to have lightened in color slightly, which wasn't unexpected. It's a bit more amber than walnut, relative to how it was when I made it. I like it so far, but I do wonder if it'll get too washed out over time. For now, this color works well with the glow of the nixie tubes.
+
+
+### Wiring
+
+I used typical 22 AWG 7/30 stranded wire. I felt safe using the same wire for power, data signals, and high voltage connections. The wire was rated to 300V, so the 170V strike voltage for the nixies wasn't an issue. The counter draws about 205 mA under normal operation, and about 230 mA when hosting a webserver. I referenced a [maximum current load ratings chart](https://www.engineeringtoolbox.com/wire-gauges-d_419.html), which suggested that this wire could take about 1.8 amps without issues. I know I should do the calculations myself, but with that much headroom, I don't think it's necessary.
+
+The connectors are [Mini-PV "DuPont" clones](http://www.mattmillman.com/info/crimpconnectors/dupont-and-dupont-connectors/). [Matt Millman's connector guides](http://www.mattmillman.com/info/crimpconnectors/) are the definitive resource on the topic. They were crimped with a [Sargent 1026-CT (BCT-1)](https://www.greatplainselectronics.com/proddetail.asp?prod=1026-CT&cat=138) crimper. It worked well enough, but the lack of a spring in the handle meant that it had to be opened manually after every crimp. Each connector required two crimps: one for the insulation, and another for the wire strands. Without a spring-action, this crimper wouldn't be practical for higher-volume work.
+
+For wire-to-wire connections, I wrapped the connectors in electrical tape to avoid short-circuits, if the connectors happened to touch some other component. Unfortunately, I might have used old electrical tape, or maybe it just didn't like being wound in such a tight radius, so it started peeling off over time, which is noticeable in some of the [photos](#photo-gallery). I've since replaced the vinyl electrical tape with fresh polyimide tape (Kapton), which is much thinner and should stay on better.
+
+There's also a few soldered and heat-shrinked connections here: wire splices and the rear panel-mount components. For wires that had to be inserted into the screw and push-button terminals, I tinned the stranded ends first. I might add a wiring diagram here later, but overall, it was a very straight-forward job.
+
+I did do one thing that's probably not ideal: I connected all the grounds for the components in serial, rather than connecting them all to a common grounding terminal. So far, it hasn't caused issues, but I'm sure it has the potential to do so. If anyone knows for sure whether it's fine to do this, or if it should be avoided, please [open an issue](https://github.com/IllyaMoskvin/aic-nixie/issues).
 
 
 *To be continued...*
