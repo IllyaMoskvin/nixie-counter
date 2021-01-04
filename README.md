@@ -30,6 +30,7 @@ This repository contains a write-up of the project, along with designs for the e
      * [LV PSU: DROK LM2596](#lv-psu-drok-lm2596)
  * [Assembly](#assembly)
    * [Acrylic Plate for PCBs](#acrylic-plate-for-pcbs)
+   * [Walnut Wood Enclosure](#walnut-wood-enclosure)
 
 
 
@@ -233,7 +234,7 @@ I neglected to take in-progress photos while making the counter, but these shoul
     </tr>
 </table>
 
-The actual steps for the assembly were pretty typical from a laser cutting and woodworking perspective. In this section, I'll try to skim over the basics and focus on the interesting stuff: the "gotchas" and the design considerations.
+The actual steps for the assembly were pretty typical from a laser cutting and woodworking perspective. In this section, I'll try to skim over the basics and focus on the interesting stuff: problems, tricks, and design considerations.
 
 
 ### Acrylic Plate for PCBs
@@ -245,6 +246,35 @@ The design intent behind mounting the PCBs to a separate component was threefold
 Unfortunately, this last point didn't really work out how I expected: during design, I forgot to account for the fact that the screw heads would stick out, pushing the acrylic piece away from the wood to which it was meant to be mounted. Before the glue-up, this was easy to remedy by drilling some indentations into the wood, but now that the counter is assembled, it would be difficult to use the same fix, if I wanted to change the acrylic piece.
 
 One solution might be to engrave circular indentations for the screw heads on the other side of the acrylic, similar to what was done for the #6 nuts. Registration could be an issue, but in this case, we care more about depth than XY alignment. The indentations could be made oversized to leave room for error. The acrylic might need to be thicker, too.
+
+
+### Walnut Wood Enclosure
+
+The enclosure is made from 1/4" walnut board from Rockler Woodworking and Hardware. I cut the wood with a [fine-toothed handsaw](https://www.amazon.com/gp/product/B000CED1OQ/) and squared up the cuts with some sandpaper. I rotated, flipped, and swapped pieces around where possible to ensure that the grain flowed well across the whole surface. I'm especially happy with how the sides turned out, where the grain appears to follow the angled corner cut. Once I knew how each piece was to be aligned, I labeled them and cut the corners from the sides.
+
+Next, I used a drill press to make the holes for the nixies, the screws, and the rear components. When drilling all the way through the wood, I drilled from the outside inward and used a sacrificial piece of wood to prevent chip-out. The holes for the nixies were drill-pressed with 1/4" bits and finished with hand files. As mentioned before, these were patterned after [Engram Enterprise's Amy Time!](http://reboots.g-cipher.net/time/) project, and I followed their technique here.
+
+The holes for the MSW-12A01 button and the 5.5x2.1mm barrel jack were made with 12mm and 11mm drill bits, respectively. Additionally, I used Forstner bits to create pockets for the nuts on those components, on the inside: 3/4" for the button and 1/2" for the power jack. The Forstner holes were necessary because the threads on these components were too short relative to the thickness of the wood. They are about 1/8" deep: half the thickness of the wood. In retrospect, I should have made the Forstner hole for the button wider.
+
+All four brass machine screws used in this project are 1/2" #6-32 with 5/32" holes and 1/4" countersink. Because the screws on the back would be visible, I decided to source decorative ones. I used [decorative rosette-head, tamper-proof wall switch plate screws](https://www.kyleswitchplates.com/decorative-rosette-head-wall-switch-plate-screws-tamper-proof/) from Kyle Switch Plates. They require a special [rosette head screwdriver](https://www.kyleswitchplates.com/rosette-head-screwdriver-for-tamper-proof-light-switch-covers/), which unfortunately has been discontinued by the manufacturer. I have almost 100 of these screws left, so I intend to use them for many of my future projects.
+
+After drilling the holes in what would become the rear of the enclosure, I discovered that the acrylic plate with the PCBs would not sit flush with the wood due to the nylon screw heads sticking out. As mentioned [above](#acrylic-plate-for-pcbs), I fixed the issue by drill-pressing some indentations into the wood until the plate sat flush.
+
+Next, I worked on attaching the nixie driver board to the enclosure. I cut two wooden "standoffs" and glued them to the inside front of the enclosure. Each standoff is about 2 3/8" long, 1/2" wide, and 1/4" thick. I drill-pressed two 3/8" deep holes through each standoff using a 17/64" bit and installed [E-Z LOK M3-0.5 brass inserts](https://www.amazon.com/E-Z-Lok-Threaded-Insert-Products/dp/B015CAPTZI) into the holes. Later during assembly, I installed M3x6mm nylon standoffs into these inserts, and attached the driver board using M3x6mm nylon screws. To get this layout to work, I had to attach the pin headers to the opposite side of the driver board, relative to how it was designed.
+
+Having never handled nixie tubes before, I found it surprising that these IN-12B were fairly irregular. Some had slight "lumps" in the glass, others had metal elements that were a little askew, and some didn't sit quite straight once installed. Functionally, it didn't matter, but I had to be careful about which tubes got placed in which slot to make sure they didn't look misaligned in context. I took a lot of care to ensure that the [PL31A-P](https://www.steampunkalchemy.com/en/nixie-tubes/sockets-pins-driver-ic) sockets that hold the tubes were aligned well during soldering, so any alignment issues there are due to inconsistencies in tube manufacturing. Granted, my tube cutouts weren't perfect either. I do like how these variations contribute to the hand-made look of the counter.
+
+Next, I beveled the edges using a [router](https://www.amazon.com/gp/product/B0799YYSW2/) and touched up the angles with sandpaper. After double-checking that everything fit together, I did the glue-up using a [combination of clamps and tape](https://www.youtube.com/watch?v=MWAnLaHw09g) to secure the pieces. After the glue dried, I took some of the sanding dust, added dark walnut stain to it, mixed it with some wood glue, masked the faces with painter's tape, and filled in any gaps around the edges with the slurry.
+
+With the body of the enclosure essentially complete, it was time to finish the lid. The lid attaches to the bottom via two 1/2" #6-32 flat head brass Phillips screws with 1/4" countersink, which screw into two #6-32 brass wood inserts. These inserts are set into two "crossbars" as shown in the [design files](#design). The crossbars are about 1/2" square in cross-section, made by gluing two pieces of the same 1/4" walnut board face-to-face for strength. When gluing the crossbars, I decided to use the lid itself as a clamp. This way, I knew for sure that the alignment between the screw holes and the inserts was good.
+
+It was difficult to get the lid to align cleanly with the rest of the enclosure. I cheated, somewhat: after affixing the lid in the optimum orientation, I used a sanding block to knock down any sharp edges from the imperfect fit. So the lid looks like it could be rotated 180°, but there's really only one orientation where it fits just right.
+
+Overall, I had a lot of trouble with the #6-32 and M3 brass wood inserts. They aren't meant for use in hardwoods like walnut. Being made of brass, they broke easily during installation. I even stripped an [E-Z LOK 500-006](https://www.ezlok.com/drive-tool-500-006) installation tool while attempting to drive them. If I were to do this again, I'd rethink this approach. If I had to use the same inserts, I'd at least drill the pilot holes much wider than recommended by the manufacturer, since those recommendations seem to be meant for softwoods. Knurled inserts with a press fit might work better. Tapping the wood directly might work for the PCB standoffs.
+
+It was time to add a finish to the wood. First, I wiped it down with mineral spirits to remove any tape residue. Then, I sanded it down with 120, 180, 220, and 320 grit sandpaper, sanding along the grain. This removed all left-over planer marks. Next, I wet the wood with water to raise the grain, waited for it to dry, and knocked down the grain by sanding with 320 grit again. Finally, I applied [Minwax Tung Oil Finish](https://www.minwax.com/wood-products/specialty-finishes/minwax-tung-oil-finish) with a rag. I wet-sanded with 320 grit for a third time, and wiped the excess finish. Doing this creates a [slurry of sanding dust](https://www.woodworkerssource.com/blog/woodworking-101/tips-tricks/heres-a-secret-to-a-better-wood-finish-on-walnut/), which gets forced into the pores, where it acts as a [pore filler](https://www.popularwoodworking.com/finishing/30921/), making the grain pop and creating a smoother finish.
+
+If I recall correctly, I only applied a single coat of finish to the enclosure. I like how it turned out. It's silky smooth to the touch. When using an in-the-wood finish on hardwood, I think it really pays to sand down past #220 and knock down the grain. I'd have to experiment with how that affects stain or dye absorbtion, but that wasn't relevant for this project. I do wonder how the decision to avoid stain will affect the counter as it ages. Looking at it now, over a year after it was finished, it appears to have lightened in color slightly, which wasn't unexpected. It's a bit more amber than walnut, relative to how it was when I made it. I like it so far, but I do wonder if it'll get too washed out over time. For now, this color works well with the glow of the nixie tubes.
 
 
 *To be continued...*
