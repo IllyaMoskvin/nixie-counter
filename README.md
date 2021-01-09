@@ -32,6 +32,7 @@ This repository contains a write-up of the project, along with designs for the e
    * [Acrylic Plate for PCBs](#acrylic-plate-for-pcbs)
    * [Walnut Wood Enclosure](#walnut-wood-enclosure)
    * [Wiring](#wiring)
+   * [miTEC MSW-12A01 Button](#mitec-msw-12a01-button)
 
 
 
@@ -255,7 +256,7 @@ The enclosure is made from 1/4" walnut board from Rockler Woodworking and Hardwa
 
 Next, I used a drill press to make the holes for the nixies, the screws, and the rear components. When drilling all the way through the wood, I drilled from the outside inward and used a sacrificial piece of wood to prevent chip-out. The holes for the nixies were drill-pressed with 1/4" bits and finished with hand files. As mentioned before, these were patterned after [Engram Enterprise's Amy Time!](http://reboots.g-cipher.net/time/) project, and I followed their technique here.
 
-The holes for the MSW-12A01 button and the 5.5x2.1mm barrel jack were made with 12mm and 11mm drill bits, respectively. Additionally, I used Forstner bits to create pockets for the nuts on those components, on the inside: 3/4" for the button and 1/2" for the power jack. The Forstner holes were necessary because the threads on these components were too short relative to the thickness of the wood. They are about 1/8" deep: half the thickness of the wood. In retrospect, I should have made the Forstner hole for the button wider.
+The holes for the MSW-12A01 button and the 5.5x2.1mm barrel jack were made with 12mm and 11mm drill bits, respectively. Additionally, I used Forstner bits to create 5/8" pockets for the nuts on those components, on the inside. The Forstner holes were necessary because the threads on these components were too short relative to the thickness of the wood. They are about 1/8" deep: half the thickness of the wood. In retrospect, I should have made the Forstner hole for the button wider.
 
 All four brass machine screws used in this project are 1/2" #6-32 with 5/32" holes and 1/4" countersink. Because the screws on the back would be visible, I decided to source decorative ones. I used [decorative rosette-head, tamper-proof wall switch plate screws](https://www.kyleswitchplates.com/decorative-rosette-head-wall-switch-plate-screws-tamper-proof/) from Kyle Switch Plates. They require a special [rosette head screwdriver](https://www.kyleswitchplates.com/rosette-head-screwdriver-for-tamper-proof-light-switch-covers/), which unfortunately has been discontinued by the manufacturer. I have almost 100 of these screws left, so I intend to use them for many of my future projects.
 
@@ -289,6 +290,29 @@ For wire-to-wire connections, I wrapped the connectors in electrical tape to avo
 There's also a few soldered and heat-shrinked connections here: wire splices and the rear panel-mount components. For wires that had to be inserted into the screw and push-button terminals, I tinned the stranded ends first. I might add a wiring diagram here later, but overall, it was a very straight-forward job.
 
 I did do one thing that's probably not ideal: I connected all the grounds for the components in serial, rather than connecting them all to a common grounding terminal. So far, it hasn't caused issues, but I'm sure it has the potential to do so. If anyone knows for sure whether it's fine to do this, or if it should be avoided, please [open an issue](https://github.com/IllyaMoskvin/aic-nixie/issues).
+
+
+### miTEC MSW-12A01 Button
+
+<img src="images/button.jpg">
+
+The button was the last component to be completed. Originally, this counter was designed to use a [generic 12mm momentary push button](https://www.google.com/search?q=generic+12mm+silver+push+button&tbm=isch) from eBay, but as soon as I installed it, I realized that I hated its look and feel in context. The press action felt too mushy. The [travel distance](https://mechanicalkeyboards.com/terms.php?t=Travel%20Distance) was too long. It had to be pushed in pretty deep in order for the press to register, and it would occasionally register multiple presses for a single push. Overall, it felt too low-quality relative to the rest of the counter.
+
+I decided to scrap the original button and re-evaluate my options. Because the counter was only going to have one button, it had to be special. The action of pressing it had to feel satisfying, even if it didn't need to be pressed often as part of normal operation. I wanted it to feel "clicky" and look good. However, it also had to fit within the 12mm wide through-hole in the counter, and its nut had to be small enough to fit within the 5/8" Forstner hole inside when tightened.
+
+The solution came from the electronic cigarette community. [Kudzu Mods](https://www.facebook.com/kudzumods/) released a video called [Mitec vs. Domed vs. Fat Daddy Fire Buttons](https://www.youtube.com/watch?v=drg0IvyCDBw), where they disassembled and compared different types of buttons. Unfortunately, it seems that video is now private. As a stand-in, I included two photos of what miTEC buttons look like when disassembled in the collage above. These photos were shared by [Scott's Mods](http://scottsmods.com/) in a [Reddit thread](https://old.reddit.com/r/OpenPV/comments/367l32/mitech_msw1202_breakdown/). Anyway, seeing the miTEC buttons disassembled like that gave me the idea to replace the original plunger with a hand-carved wooden one.
+
+Disassembly is a simple process: apply heat to bottom of button evenly, until the black tack loosens slightly. Apply moderate pressure to the plunger, and the whole assembly will pop out from the back. To reseal, just add some superglue around the edge and put it back. I didn't have a heatgun handy, so I just put it in a frying pan with the tack side facing down and heated it on the stove top for a minute or so, until the tack loosened.
+
+I like this design. The tactile button mounted on the PCB is very clicky and has a short travel distance, which was perfect for this project. Some reported that the assembly can get pushed in too deep over time, causing clicks to not register, but Kudzu Mods said that this could be remedied by the same superglue solution. Also, this button wasn't going to see as much use as the fire button of an e-cig, so I wasn't too concerned.
+
+I carved the wooden plunger by hand by cutting a small square of walnut, sanding it down into a circle, and filing it into a flanged shape. I finished it with the same steps as rest of the counter. I chose an area of walnut that had many small pores to make it more visually interesting. I think it might have been one of the corner scraps that got cut off the sides.
+
+Before installing the new plunger, however, I decided to see if I could make the button match the 2.1mm barrel jack. The [MSW-12A01](https://www.whr.hk/catalogue/Push_Button_cat.pdf) buttons are dyed anodized aluminum. When I got this button, it was coppery-yellow in color, as shown in the top-left photo of the collage above.  MiTEC also makes the [MSW-1201](https://www.amazon.com/MiTEC-MSW-1201-Stainless-Steel-Button/dp/B01LW32MM7), which is stainless steel, but at the time when I was ordering supplies, it was not available domestically.
+
+So working with what I had on hand, I used [oven cleaner](https://www.youtube.com/watch?v=bNAB45zQUtk) (sodium hydroxide) to strip the anodization from the button while it was disassembled. Then, I used some wet 3000 grit sandpaper to polish the aluminum, and reassembled the button.
+
+Lastly, I had to use some sandpaper to reduce the size of the nut until it fit into the 5/8" (15.875mm) Forstner hole. The original hole was designed based on measuring the generic push button. The nut for the MSW-12A01 was considerably larger, about 18.20mm. Sanding the nut did the trick, though it's still difficult to tighten. I have to use a screwdriver to push each facet of the nut at an angle until it's tightened. In retrospect, this Forstner hole should have been 3/4" wide.
 
 
 *To be continued...*
