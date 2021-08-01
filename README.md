@@ -33,6 +33,7 @@ This repository contains a write-up of the project, along with designs for the e
    * [Walnut Wood Enclosure](#walnut-wood-enclosure)
    * [Wiring](#wiring)
    * [miTEC MSW-12A01 Button](#mitec-msw-12a01-button)
+ * [Future Work](#future-work)
 
 
 
@@ -316,3 +317,27 @@ Lastly, I had to use some sandpaper to reduce the size of the nut until it fit i
 
 
 *To be continued...*
+
+
+
+## Future Work
+
+They say a project is never finished, only abandoned. I have several improvements I'd like to make, someday:
+
+ - Make a custom power cord. Borrow some ideas from people who make [custom audio cables](https://www.headphonesty.com/2019/04/demevalos-guide-to-building-audio-cables/). Currently, I'm using an [Adafruit ADA1125](https://www.adafruit.com/product/1125) with a [12V 2.0A AC/DC adapter](https://www.amazon.com/gp/product/B07HNL5D56/). It works, but it spoils the aethetic. Some specifics:
+
+   - Sleeve the cable with cloth or paracord. Or get a pre-sleeved cable from e.g. [VintageWire](https://www.etsy.com/listing/265642948/riverbed-cotton-cloth-covered-wire-8-ft).
+   - Use a nicer on/off switch. I bought vintage [Hubbell No. 275 switches](https://www.etsy.com/listing/896312666/bakelite-lamp-cord-onoff-switches) that would be perfect here.
+   - Use a nicer 5.5mm x 2.1mm barrel plug. Maybe the [MDFLY CMP-CT0027](https://www.mdfly.com/products/5-5mm-x-2-1mm-5-5-2-1-dc-power-barrel-plug-metal-free-hanging-pack-of-2.html) or the [Switchcraft 762](https://www.switchcraft.com/Product.aspx?ID=7005) or [762Z](https://www.switchcraft.com/Product.aspx?ID=9403).
+   - Modify an AC adapter to accept sleeved twisted pair wiring ([example](https://www.alibaba.com/product-detail/Electrical-Fabric-cover-Wire-cord-set_1600057270947.html)). 
+
+ - Hard-fork [mathertel/OneButton](https://github.com/mathertel/OneButton). Or just rewrite it from scratch. I'm grateful to its author for creating and maintaining this library, but I've run into a few issues with it while making this project. These issues are fundamental to the fact that it is a finite-state machine, which is in turn a [fundamental aspect of this library](http://www.mathertel.de/Arduino/OneButtonLibrary.aspx).
+
+   - It only supports double-clicks, not multi-clicks ([#50](https://github.com/mathertel/OneButton/issues/50)).
+   - It can't handle interrupts reliably ([#89](https://github.com/mathertel/OneButton/issues/89), [#28](https://github.com/mathertel/OneButton/issues/28)).
+
+ - Swap in an [IN-15A](http://www.tube-tester.com/sites/nixie/data/in-15a.htm) or [IN-15B](http://www.tube-tester.com/sites/nixie/data/IN-15B/in-15b.htm) tube. I'm particularly interested in the +/− symbols on the IN-15A. Might be neat to use them to track e.g. number of lines added/deleted in a [git working directory](https://medium.com/hackernoon/understanding-git-index-4821a0765cf).
+
+ - Add a temperature sensor (e.g. [TMP36](https://learn.adafruit.com/tmp36-temperature-sensor/using-a-temp-sensor)). This would be a temporary change. I neglected to add any vent holes to the enclosure. I did try to pick out components that ran cool, and there is some airflow through the tube cut-outs in the front face, but it'd be nice to know how hot it actually gets in there. 
+
+- Use the RGB LEDs on the Doayee driver for backlighting. For that [100% Completion](https://tvtropes.org/pmwiki/pmwiki.php/Main/HundredPercentCompletion) feeling.
