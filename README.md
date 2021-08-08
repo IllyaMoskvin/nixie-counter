@@ -34,6 +34,7 @@ This repository contains a write-up of the project, along with designs for the e
    * [Wiring](#wiring)
    * [miTEC MSW-12A01 Button](#mitec-msw-12a01-button)
  * [Future Work](#future-work)
+ * [Rights and Permissions](#rights-and-permissions)
 
 
 
@@ -341,3 +342,18 @@ They say a project is never finished, only abandoned. I have several improvement
  - Add a temperature sensor (e.g. [TMP36](https://learn.adafruit.com/tmp36-temperature-sensor/using-a-temp-sensor)). This would be a temporary change. I neglected to add any vent holes to the enclosure. I did try to pick out components that ran cool, and there is some airflow through the tube cut-outs in the front face, but it'd be nice to know how hot it actually gets in there. 
 
 - Use the RGB LEDs on the Doayee driver for backlighting. For that [100% Completion](https://tvtropes.org/pmwiki/pmwiki.php/Main/HundredPercentCompletion) feeling.
+
+
+
+## Rights and Permissions
+
+I made this counter while employed at the [Art Institute of Chicago](https://www.artic.edu). The project was originally inspired by my desire to promote the launch of its [public API](https://www.artic.edu/open-access/public-api). I want to recognize that legacy and take this opportunity to promote the work being done there to make their institutional data more accessible to the public.
+
+However, this project was not organized, funded, or supported by the Art Institute of Chicago. This counter was made entirely on my own time, using my own materials. And over time, this project evolved to be more about measuring my personal work, rather than anything going on at my place of employment.
+
+Therefore, I consider the work that I did for this project be entirely my own. I'm releasing it under the following licenses:
+
+ * [CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/) for the design
+ * [MIT License](LICENSE) for the code
+
+In short, you can do whatever you'd like with my code and designs, but (1) I take no responsibility if something goes wrong, and (2) it would be nice if you could credit me and link back to this project. Note that the license terms for the libraries and components used in this project may differ from my original contributions to the final product.
