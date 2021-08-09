@@ -33,6 +33,11 @@ This repository contains a write-up of the project, along with designs for the e
    * [Walnut Wood Enclosure](#walnut-wood-enclosure)
    * [Wiring](#wiring)
    * [miTEC MSW-12A01 Button](#mitec-msw-12a01-button)
+ * [Programming](#programming)
+   * [Requirements](#requirements)
+   * [Wi-Fi Manager](#wi-fi-manager)
+   * [Config Webserver](#config-webserver)
+   * [Number Microservices](#number-microservices)
  * [Future Work](#future-work)
  * [Rights and Permissions](#rights-and-permissions)
 
@@ -317,7 +322,30 @@ So working with what I had on hand, I used [oven cleaner](https://www.youtube.co
 Lastly, I had to use some sandpaper to reduce the size of the nut until it fit into the 5/8" (15.875mm) Forstner hole. The original hole was designed based on measuring the generic push button. The nut for the MSW-12A01 was considerably larger, about 18.20mm. Sanding the nut did the trick, though it's still difficult to tighten. I have to use a screwdriver to push each facet of the nut at an angle until it's tightened. In retrospect, this Forstner hole should have been 3/4" wide.
 
 
-*To be continued...*
+
+## Programming
+
+*WIP*
+
+
+### Requirements
+
+*WIP*
+
+
+### Wi-Fi Manager
+
+*WIP*
+
+
+### Config Webserver
+
+*WIP*
+
+
+### Number Microservices
+
+*WIP*
 
 
 
