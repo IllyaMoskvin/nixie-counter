@@ -38,6 +38,11 @@ This repository contains a write-up of the project, along with designs for the e
    * [Wi-Fi Manager](#wi-fi-manager)
    * [Config Webserver](#config-webserver)
    * [Number Microservices](#number-microservices)
+ * [Animations](#animations)
+   * [Hello World](#hello-world)
+   * [Number Transition](#number-transition)
+   * [IP Address Scroll](#ip-address-scroll)
+   * [Screensaver](#screensaver)
  * [Future Work](#future-work)
  * [Rights and Permissions](#rights-and-permissions)
 
@@ -346,6 +351,44 @@ Lastly, I had to use some sandpaper to reduce the size of the nut until it fit i
 ### Number Microservices
 
 *WIP*
+
+
+
+## Animations
+
+One of the neat parts of this project was getting to design and code a variety of animations for the nixies. Motion design is not something that often comes up in my work. Figuring out how to design animations that showcase the unique nature of nixie tubes as a medium was a cool challenge.
+
+
+### Hello World
+
+On startup, the counter says "hello" in [leetspeak](https://en.wikipedia.org/wiki/Leet): 83770. The greeting remains displayed while the counter connects to Wi-Fi and queries the microservice for its first number. The transition animation is then used to transform 83770 into the returned number. Pretty straight-forward.
+
+
+### Number Transition
+
+One of the unique aspects of nixie tubes is their semi-three-dimensional nature. Each nixie tube has a stack of digits in it. Digits near the bottom (back) of the stack appear noticeably farther away than digits near the top (front). When a number towards the back of the stack is lit, it is somewhat obscured by the unlit segments in front of it. Overall, this creates a sense of dimensionality that is absent from [multi-segment displays](https://en.wikipedia.org/wiki/Sixteen-segment_display). When thinking about how to transition the display to a new number, I wanted to use that transition as an opportunity to highlight this dimensionality. 
+
+When the counter queries a microservice, it saves the response as the next number that should be displayed. Every 75 milliseconds, it will morph the currently displayed number one step towards the next number. Starting from the left, it finds the first tube that is different between the current number and the next. It takes the digits in that place from both numbers and compares their positions in the digit stack. Finally, it advances the current digit in that place one step along the digit stack towards the next digit. By doing this repeatedly, we create an animation wherein numbers seem to sink into and rise out of the tubes.
+
+From back to front, the digit stack order of IN-12 tubes is as follows: 1, 6, 2, 7, 5, 0, 4, 9, 8, 3.
+
+
+### IP Address Scroll
+
+When the button is double-clicked, the counter will show its IPv4 address within the local network. If someone on the same network visits that IP address via HTTP in their browser, they'll see the counter's [configuration page](#config-webserver). The IN-12B tubes contain a dot cathode, which is perfect for IP addresses. 
+
+This IP address is often [longer than six digits](https://en.wikipedia.org/wiki/Reserved_IP_addresses), so it may not be possible to show it all at once. I had to add a scroll animation to fix that issue. This animation is similar to the old HTML [marquee element](https://en.wikipedia.org/wiki/Marquee_element) with the "alternate" behavior to enable bouncing text. The six-digit window starts by showing the first six digits of the IP address. It then scrolls to the right until it reaches the end of the IP address, rests there a moment, scrolls back to the left, rests, and repeats.
+
+It's worthwhile noting that when the counter is in the [Wi-Fi Manager](#wi-fi-manager) state, rather than the [Config Webserver](#config-webserver) state, its address will always be `10.0.0.1` within the network it creates. This address is displayed right-aligned and does not use the scroll animation.
+
+
+### Screensaver
+
+Nixie tubes tend to develop “cathode poisoning” on digits that are not in regular use. When a nixie digit is lit, it sputters material, which sticks to the glass envelope, causing it to darken, and to other digits, causing them to be lit unevenly. It's possible to [detect cathode poisoning](https://surfncircuits.com/2019/04/06/eliminating-nixie-tube-cathode-poisoning-bi-quinary-digit-ghosting-and-heavily-oxidized-leads/) before it becomes visible and to heal it by [burning it away](http://www.tube-tester.com/sites/nixie/different/cathode%20poisoning/cathode-poisoning.htm). It can also be prevented by occasionally cycling through unused digits. This is a great excuse to create a neat "screensaver" animation.
+
+For my screensaver, I made a "wave" animation. Like the transition animation, this animation plays with the fact that there is a stack of digits in each tube. First, the display transitions into a blank state. Then, starting with the leftmost tube, each digit in the stack is lit up one at a time, from bottom to top. When the topmost digit in the leftmost tube is lit, we start doing the same for the tube to its right. When the topmost digit of that tube is also lit, we start decrementing the tube to its left, just as we start incementing the tube to its right, one digit at a time. Repeat this for all tubes, and we get an effect of a wave that moves from left to right across the display.
+
+Nixie tubes can [last for years of continuous operation](https://www.saltechips.com/lab/the-shine-experiment/), but cathode poisoning will become apparent long before that without proper prevention. Dalibor Farny [recommends a ratio of 300:1](https://docs.daliborfarny.com/documentation/cathode-poisoning-prevention-routine/) for cathode cycling their [R|Z568M](https://www.daliborfarny.com/product/rz568m-nixie-tube/) tubes. The ratio might be different for IN-12 tubes, but it's a good rule-of-thumb. My animation could be slowed down to meet that ratio.
 
 
 
