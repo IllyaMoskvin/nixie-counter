@@ -35,6 +35,7 @@ This repository contains a write-up of the project, along with designs for the e
     *   [miTEC MSW-12A01 Button](#mitec-msw-12a01-button)
 *   [Programming](#programming)
     *   [Requirements](#requirements)
+    *   [Installation](#installation)
     *   [Wi-Fi Manager](#wi-fi-manager)
     *   [Config Webserver](#config-webserver)
     *   [Number Microservices](#number-microservices)
@@ -349,6 +350,88 @@ Additionally, it needs the following libraries:
 * [WiFiManager](https://github.com/tzapu/WiFiManager) ([1b8d870](https://github.com/tzapu/WiFiManager/commit/1b8d870))
 
 Lastly, you'll need [Python 3.x](https://www.python.org/downloads/) to run the [server](server) scripts and to [install the esp8266 board core](https://arduino-esp8266.readthedocs.io/en/latest/installing.html#using-git-version).
+
+
+### Installation
+
+Arduino does not have a dependency manager like [Composer](https://getcomposer.org/) or [npm](https://www.npmjs.com/) that allows us to install libraries on a per-project basis. The [Library Manager](https://www.arduino.cc/en/guide/libraries) and [Board Manager](https://www.arduino.cc/en/Tutorial/getting-started-with-ide-v2/ide-v2-board-manager) are [package managers, not dependency managers](https://stackoverflow.com/questions/27285783/package-manager-vs-dependency-manager) because they can only install dependencies globally. You cannot use them to "pin" specific versions of libraries or board cores for a project.
+
+However, it is possible to manage dependencies manually by using a separate sketchbook for each project. Here are two comments by [pert](https://github.com/per1234) from the Arduino Team describing the process:
+
+* [Filing a project with all of its libraries](https://forum.arduino.cc/t/filing-a-project-with-all-of-its-libraries/675817/2)
+* [Add a new board without Board Manager](https://forum.arduino.cc/t/add-new-board-without-board-manager-on-ide-1-6-8/379140/10)
+
+For this project, I've included the board core and libraries it needs as [Git submodules](https://git-scm.com/book/en/v2/Git-Tools-Submodules). After recursively cloning this repo, set it as your sketchbook location, and the project should compile. You can try using your existing Arduino IDE installation, but I recommend creating a [portable installation](https://www.arduino.cc/en/Guide/PortableIDE) specifically for this project, with an Arduino IDE version that is known to work.
+
+1.  Create a portable Arduino installation.
+
+    1.  Download [arduino-1.8.9-windows.zip](https://downloads.arduino.cc/arduino-1.8.9-windows.zip) from [OldSoftwareReleases](https://www.arduino.cc/en/main/OldSoftwareReleases).
+
+    1.  Extract the ZIP file somewhere to create `arduino-1.8.9`.
+
+    1.  Create a `portable` directory inside `arduino-1.8.9`.
+
+    1.  Run `arduino-1.8.9/arduino.exe`.
+
+    1.  Open **File > Preferences**.
+
+    1.  Uncheck **Check for updates on startup**.
+
+1.  Clone this repository and set it as your sketchbook location:
+
+    1.  Clone this repo wherever you clone code:
+
+        ```bash
+        git clone git@github.com:IllyaMoskvin/aic-nixie.git
+        ```
+
+    1.  Inside your repo, recursively initialize all Git submodules: in the `libraries` directory:
+
+        ```bash
+        git submodule update --init --recursive -- libraries/
+        ```
+
+    1.  Update **File > Preferences > Sketchbook location** to point at your repo.
+
+1.  Install the ESP8266 board core. There are two ways to do this:
+
+    1.  (Recommended) Use the `hardware/esp8266` submodule included with this repo.
+
+        1.  Inside your repo, recursively initialize all Git submodules in the `hardware/` directory:
+
+            ```bash
+            git submodule update --init --recursive -- hardware/
+            ```
+
+        1.  [Download binary tools](https://arduino-esp8266.readthedocs.io/en/latest/installing.html#using-git-version). From your repo:
+
+            ```bash
+            (cd hardware/esp8266com/esp8266/tools/ && python get.py)
+            ```
+
+        1. Restart the Arduino IDE or open (and close) the Board Manager to reload the board list.
+
+    1. (Alternative) Download the core via the Board Manager.
+
+        1.  Open **File > Preferences**.
+
+        1.  Enter this URL into the **Additional Boards Manager URLs** field:
+
+            ```
+            http://arduino.esp8266.com/stable/package_esp8266com_index.json
+            ```
+
+        1.  Open **Tools > Board > Board Manager...**
+
+        1.  Install **esp8266** by **ESP8266 Community** version **2.5.0**
+
+1.  Go to **Tools > Board > ESP8266 Boards (2.5.0)** and select **Adafruit Feather HUZZAH ESP8266**
+
+1.  Open **File > Sketchbook > sketches > NixieMain**
+
+1.  Run **Sketch > Verify/Compile** (Ctrl+R)
+
+If it says "Done compiling." without errors, congrats! You've got a portable installation of the Arduino IDE that's tailored specifically for this project. However, if you did not follow these steps, please do note that even though this project might compile with the "wrong" versions of libraries or the board core, unexpected errors may occur during runtime.
 
 
 ### Wi-Fi Manager
