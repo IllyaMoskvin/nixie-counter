@@ -335,7 +335,20 @@ Lastly, I had to use some sandpaper to reduce the size of the nut until it fit i
 
 ### Requirements
 
-*WIP*
+> **Note:** I highly recommend following the [installation](#installation) steps below to create a portable installation with the exact Arduino IDE, board core, and library versions needed by this project. I cannot guarantee that it'll work with any versions different than those used in development.
+
+This project was developed with the following Arduino IDE and ESP8266 board core versions:
+
+* [Arduino 1.8.9](https://www.arduino.cc/en/main/OldSoftwareReleases)
+* [esp8266 2.5.0](https://github.com/esp8266/Arduino/tree/2.5.0)
+
+Additionally, it needs the following libraries:
+
+* [NixieDriver_ESP](https://github.com/IllyaMoskvin/NixieDriver_ESP) (unofficial library by Joe Pasqua)
+* [OneButton](https://github.com/PatrickGlatz/OneButton) (PatrickGlatz's fork with triple-click)
+* [WiFiManager](https://github.com/tzapu/WiFiManager) ([1b8d870](https://github.com/tzapu/WiFiManager/commit/1b8d870))
+
+Lastly, you'll need [Python 3.x](https://www.python.org/downloads/) to run the [server](server) scripts and to [install the esp8266 board core](https://arduino-esp8266.readthedocs.io/en/latest/installing.html#using-git-version).
 
 
 ### Wi-Fi Manager
