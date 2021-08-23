@@ -36,6 +36,7 @@ This repository contains a write-up of the project, along with designs for the e
 *   [Programming](#programming)
     *   [Requirements](#requirements)
     *   [Installation](#installation)
+    *   [Errors](#errors)
     *   [Wi-Fi Manager](#wi-fi-manager)
     *   [Config Webserver](#config-webserver)
     *   [Number Microservices](#number-microservices)
@@ -432,6 +433,37 @@ For this project, I've included the board core and libraries it needs as [Git su
 1.  Run **Sketch > Verify/Compile** (Ctrl+R)
 
 If it says "Done compiling." without errors, congrats! You've got a portable installation of the Arduino IDE that's tailored specifically for this project. However, if you did not follow these steps, please do note that even though this project might compile with the "wrong" versions of libraries or the board core, unexpected errors may occur during runtime.
+
+
+### Errors
+
+Here are some errors you might see during compilation, along with their most likely causes:
+
+*   ```
+    OneButton.h: No such file or directory
+    ```
+
+    1.  You forgot to set this repository as the sketchbook location.
+
+    1.  You forgot to initialize the library submodules.
+
+*   ```
+    ESP8266WiFi.h: No such file or directory
+    ```
+
+    1.  You forgot to initialize the hardware submodules.
+
+    1.  You forgot to select an ESP8266 board.
+
+*   ```
+    exec: "[..]/hardware/esp8266com/esp8266/tools/xtensa-lx106-elf/bin/xtensa-lx106-elf-g++": file does not exist
+    ```
+
+    ...you forgot to download the binary tools.
+
+If the counter is stuck on 83770, it's in a restart loop because it's encountering an exception before it can retrieve the first number. Most likely, this is happening because you used the wrong version of the ESP8266 board core. See [Requirements](#requirements).
+
+You can try using the [Serial Monitor](https://www.arduino.cc/en/Tutorial/getting-started-with-ide-v2/ide-v2-serial-monitor) and the [ESP Exception Decoder](https://github.com/me-no-dev/EspExceptionDecoder) to [debug the exception](https://arduino-esp8266.readthedocs.io/en/latest/faq/a02-my-esp-crashes.html) being thrown. 
 
 
 ### Wi-Fi Manager
