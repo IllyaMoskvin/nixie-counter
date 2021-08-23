@@ -18,33 +18,33 @@ This repository contains a write-up of the project, along with designs for the e
 
 ## Table of Contents
 
- * [Photo Gallery](#photo-gallery)
- * [Inspiration](#inspiration)
- * [Design](#design)
- * [Components](#components)
-   * [Nixie Tubes: IN-12B](#nixie-tubes-in-12b)
-   * [Doayee's Nixie Driver](#doayees-nixie-driver)
-   * [Acrylic-Mounted PCBs](#acrylic-mounted-pcbs)
-     * [Adafruit HUZZAH ESP8266 Breakout](#adafruit-huzzah-esp8266-breakout)
-     * [HV PSU: YanZeyuan’s NCH6100HV](#hv-psu-yanzeyuans-nch6100hv)
-     * [LV PSU: DROK LM2596](#lv-psu-drok-lm2596)
- * [Assembly](#assembly)
-   * [Acrylic Plate for PCBs](#acrylic-plate-for-pcbs)
-   * [Walnut Wood Enclosure](#walnut-wood-enclosure)
-   * [Wiring](#wiring)
-   * [miTEC MSW-12A01 Button](#mitec-msw-12a01-button)
- * [Programming](#programming)
-   * [Requirements](#requirements)
-   * [Wi-Fi Manager](#wi-fi-manager)
-   * [Config Webserver](#config-webserver)
-   * [Number Microservices](#number-microservices)
- * [Animations](#animations)
-   * [Hello World](#hello-world)
-   * [Number Transition](#number-transition)
-   * [IP Address Scroll](#ip-address-scroll)
-   * [Screensaver](#screensaver)
- * [Future Work](#future-work)
- * [Rights and Permissions](#rights-and-permissions)
+*   [Photo Gallery](#photo-gallery)
+*   [Inspiration](#inspiration)
+*   [Design](#design)
+*   [Components](#components)
+    *   [Nixie Tubes: IN-12B](#nixie-tubes-in-12b)
+    *   [Doayee's Nixie Driver](#doayees-nixie-driver)
+    *   [Acrylic-Mounted PCBs](#acrylic-mounted-pcbs)
+        *   [Adafruit HUZZAH ESP8266 Breakout](#adafruit-huzzah-esp8266-breakout)
+        *   [HV PSU: YanZeyuan’s NCH6100HV](#hv-psu-yanzeyuans-nch6100hv)
+        *   [LV PSU: DROK LM2596](#lv-psu-drok-lm2596)
+*   [Assembly](#assembly)
+    *   [Acrylic Plate for PCBs](#acrylic-plate-for-pcbs)
+    *   [Walnut Wood Enclosure](#walnut-wood-enclosure)
+    *   [Wiring](#wiring)
+    *   [miTEC MSW-12A01 Button](#mitec-msw-12a01-button)
+*   [Programming](#programming)
+    *   [Requirements](#requirements)
+    *   [Wi-Fi Manager](#wi-fi-manager)
+    *   [Config Webserver](#config-webserver)
+    *   [Number Microservices](#number-microservices)
+*   [Animations](#animations)
+    *   [Hello World](#hello-world)
+    *   [Number Transition](#number-transition)
+    *   [IP Address Scroll](#ip-address-scroll)
+    *   [Screensaver](#screensaver)
+*   [Future Work](#future-work)
+*   [Rights and Permissions](#rights-and-permissions)
 
 
 
@@ -126,9 +126,9 @@ Taken in sum, these changes promised to be a challenge, both in terms of woodwor
 
 This counter was designed entirely in Adobe Illustrator CC. At the time, I was not proficient with 3D CAD software. I have no interest in making this design particularly easy to reproduce, but I'm willing to share the files:
 
- * [side.ai](designs/side.ai)
- * [back.ai](designs/back.ai)
- * [front.ai](designs/front.ai)
+* [side.ai](designs/side.ai)
+* [back.ai](designs/back.ai)
+* [front.ai](designs/front.ai)
 
 I made an effort to organize their contents, but they are provided as-is. There are definitely some inaccuracies relative to the finished counter. For example, you may notice that the acrylic piece was designed to mount a fourth PCB—this [TXS0108E 8-bit bi-directional level-shifter breakout](https://www.addicore.com/TXS0108E-p/ad284.htm). Turns out, it wasn't needed? Also, I used a different button than the one measured for the designs. Generally, the measurements for the back cutouts don't quite reflect the final product.
 
@@ -186,9 +186,9 @@ Speaking of LEDs, there's a single, stand-alone blue LED on the driver board tha
 
 Aside from the nixie driver, all of the other PCBs are mounted on a piece of laser-cut acrylic that's easy to remove from the enclosure for reprogramming. I'll discuss the particulars of this design in more depth [below](#acrylic-plate-for-pcbs), but for now, here is a photo of the PCBs for reference. From left to right:
 
-  * [Adafruit HUZZAH ESP8266 Breakout](#adafruit-huzzah-esp8266-breakout)
-  * [YanZeyuan’s NCH6100HV](#hv-psu-yanzeyuans-nch6100hv)
-  * [DROK LM2596](#lv-psu-drok-lm2596)
+* [Adafruit HUZZAH ESP8266 Breakout](#adafruit-huzzah-esp8266-breakout)
+* [YanZeyuan’s NCH6100HV](#hv-psu-yanzeyuans-nch6100hv)
+* [DROK LM2596](#lv-psu-drok-lm2596)
 
 
 #### Adafruit HUZZAH ESP8266 Breakout
@@ -396,23 +396,23 @@ Nixie tubes can [last for years of continuous operation](https://www.saltechips.
 
 They say a project is never finished, only abandoned. I have several improvements I'd like to make, someday:
 
- - Make a custom power cord. Borrow some ideas from people who make [custom audio cables](https://www.headphonesty.com/2019/04/demevalos-guide-to-building-audio-cables/). Currently, I'm using an [Adafruit ADA1125](https://www.adafruit.com/product/1125) with a [12V 2.0A AC/DC adapter](https://www.amazon.com/gp/product/B07HNL5D56/). It works, but it spoils the aethetic. Some specifics:
+*   Make a custom power cord. Borrow some ideas from people who make [custom audio cables](https://www.headphonesty.com/2019/04/demevalos-guide-to-building-audio-cables/). Currently, I'm using an [Adafruit ADA1125](https://www.adafruit.com/product/1125) with a [12V 2.0A AC/DC adapter](https://www.amazon.com/gp/product/B07HNL5D56/). It works, but it spoils the aethetic. Some specifics:
 
-   - Sleeve the cable with cloth or paracord. Or get a pre-sleeved cable from e.g. [VintageWire](https://www.etsy.com/listing/265642948/riverbed-cotton-cloth-covered-wire-8-ft).
-   - Use a nicer on/off switch. I bought vintage [Hubbell No. 275 switches](https://www.etsy.com/listing/896312666/bakelite-lamp-cord-onoff-switches) that would be perfect here.
-   - Use a nicer 5.5mm x 2.1mm barrel plug. Maybe the [MDFLY CMP-CT0027](https://www.mdfly.com/products/5-5mm-x-2-1mm-5-5-2-1-dc-power-barrel-plug-metal-free-hanging-pack-of-2.html) or the [Switchcraft 762](https://www.switchcraft.com/Product.aspx?ID=7005) or [762Z](https://www.switchcraft.com/Product.aspx?ID=9403).
-   - Modify an AC adapter to accept sleeved twisted pair wiring ([example](https://www.alibaba.com/product-detail/Electrical-Fabric-cover-Wire-cord-set_1600057270947.html)). 
+    *   Sleeve the cable with cloth or paracord. Or get a pre-sleeved cable from e.g. [VintageWire](https://www.etsy.com/listing/265642948/riverbed-cotton-cloth-covered-wire-8-ft).
+    *   Use a nicer on/off switch. I bought vintage [Hubbell No. 275 switches](https://www.etsy.com/listing/896312666/bakelite-lamp-cord-onoff-switches) that would be perfect here.
+    *   Use a nicer 5.5mm x 2.1mm barrel plug. Maybe the [MDFLY CMP-CT0027](https://www.mdfly.com/products/5-5mm-x-2-1mm-5-5-2-1-dc-power-barrel-plug-metal-free-hanging-pack-of-2.html) or the [Switchcraft 762](https://www.switchcraft.com/Product.aspx?ID=7005) or [762Z](https://www.switchcraft.com/Product.aspx?ID=9403).
+    *   Modify an AC adapter to accept sleeved twisted pair wiring ([example](https://www.alibaba.com/product-detail/Electrical-Fabric-cover-Wire-cord-set_1600057270947.html)). 
 
- - Hard-fork [mathertel/OneButton](https://github.com/mathertel/OneButton). Or just rewrite it from scratch. I'm grateful to its author for creating and maintaining this library, but I've run into a few issues with it while making this project. These issues are fundamental to the fact that it is a finite-state machine, which is in turn a [fundamental aspect of this library](http://www.mathertel.de/Arduino/OneButtonLibrary.aspx).
+*   Hard-fork [mathertel/OneButton](https://github.com/mathertel/OneButton). Or just rewrite it from scratch. I'm grateful to its author for creating and maintaining this library, but I've run into a few issues with it while making this project. These issues are fundamental to the fact that it is a finite-state machine, which is in turn a [fundamental aspect of this library](http://www.mathertel.de/Arduino/OneButtonLibrary.aspx).
 
-   - It only supports double-clicks, not multi-clicks ([#50](https://github.com/mathertel/OneButton/issues/50)).
-   - It can't handle interrupts reliably ([#89](https://github.com/mathertel/OneButton/issues/89), [#28](https://github.com/mathertel/OneButton/issues/28)).
+    *   It only supports double-clicks, not multi-clicks ([#50](https://github.com/mathertel/OneButton/issues/50)).
+    *   It can't handle interrupts reliably ([#89](https://github.com/mathertel/OneButton/issues/89), [#28](https://github.com/mathertel/OneButton/issues/28)).
 
- - Swap in an [IN-15A](http://www.tube-tester.com/sites/nixie/data/in-15a.htm) or [IN-15B](http://www.tube-tester.com/sites/nixie/data/IN-15B/in-15b.htm) tube. I'm particularly interested in the +/− symbols on the IN-15A. Might be neat to use them to track e.g. number of lines added/deleted in a [git working directory](https://medium.com/hackernoon/understanding-git-index-4821a0765cf).
+*   Swap in an [IN-15A](http://www.tube-tester.com/sites/nixie/data/in-15a.htm) or [IN-15B](http://www.tube-tester.com/sites/nixie/data/IN-15B/in-15b.htm) tube. I'm particularly interested in the +/− symbols on the IN-15A. Might be neat to use them to track e.g. number of lines added/deleted in a [git working directory](https://medium.com/hackernoon/understanding-git-index-4821a0765cf).
 
- - Add a temperature sensor (e.g. [TMP36](https://learn.adafruit.com/tmp36-temperature-sensor/using-a-temp-sensor)). This would be a temporary change. I neglected to add any vent holes to the enclosure. I did try to pick out components that ran cool, and there is some airflow through the tube cut-outs in the front face, but it'd be nice to know how hot it actually gets in there. 
+*   Add a temperature sensor (e.g. [TMP36](https://learn.adafruit.com/tmp36-temperature-sensor/using-a-temp-sensor)). This would be a temporary change. I neglected to add any vent holes to the enclosure. I did try to pick out components that ran cool, and there is some airflow through the tube cut-outs in the front face, but it'd be nice to know how hot it actually gets in there. 
 
-- Use the RGB LEDs on the Doayee driver for backlighting. For that [100% Completion](https://tvtropes.org/pmwiki/pmwiki.php/Main/HundredPercentCompletion) feeling.
+*   Use the RGB LEDs on the Doayee driver for backlighting. For that [100% Completion](https://tvtropes.org/pmwiki/pmwiki.php/Main/HundredPercentCompletion) feeling.
 
 
 
@@ -424,7 +424,7 @@ However, this project was not organized, funded, or supported by the Art Institu
 
 Therefore, I consider the work that I did for this project be entirely my own. I'm releasing it under the following licenses:
 
- * [CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/) for the design
- * [MIT License](LICENSE) for the code
+* [CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/) for the design
+* [MIT License](LICENSE) for the code
 
 In short, you can do whatever you'd like with my code and designs, but (1) I take no responsibility if something goes wrong, and (2) it would be nice if you could credit me and link back to this project. Note that the license terms for the libraries and components used in this project may differ from my original contributions to the final product.
