@@ -482,7 +482,23 @@ Via this webpage, you can set the host, port, and path that it will query to get
 
 ### Number Microservices
 
-*WIP*
+In order to determine what number to display, the counter queries the configured URL via HTTP every 5 seconds. It expects a simple response comprised of a 6-digit string followed by `\n`. The trailing newline [prevents a 5-second delay](https://forum.arduino.cc/t/esp8266-http-s-response-time/508540).
+
+Using Python 3.9.1, I've written several microservices that measure various things and return a number. They are meant to run either on my personal computer or on one of my remote servers. They all extend [nixie.py](server/nixie.py) and get invoked like so:
+
+```bash
+python rand.py
+```
+
+Here are the microservices I've written so far:
+
+Script | Description
+---|---
+[aic.py](server/aic.py) | Show number of artworks updated in the Art Institue of Chicago's API since 9:00 AM CT today.
+[cat.py](server/cat.py) \[path\] | Read a number from a file. (Use with something that writes to a file.)
+[fc.py](server/fc.py) \[path\] | Count number of files and folders in a directory.
+[rand.py](server/rand.py) | Show a random number.
+[wc.py](server/wc.py) \[path\] | Count number of lines in a Markdown file.
 
 
 
