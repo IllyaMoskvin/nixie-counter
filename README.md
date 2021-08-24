@@ -475,7 +475,9 @@ If you need to change the Wi-Fi network, you can also launch the WiFiManager at 
 
 ### Config Webserver
 
-*WIP*
+If you double-click the counter's button, it will launch a webserver with a configuration webpage. It'll also [show its local IP address](#ip-address-scroll) via the nixies. If you are connected to the same network as the counter, you can configure it by navigating to this address in your browser.
+
+Via this webpage, you can set the host, port, and path that it will query to get what number it needs to display.
 
 
 ### Number Microservices
