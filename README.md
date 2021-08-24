@@ -14,25 +14,41 @@ Over time, what this project represents has shifted in practice to be less about
 
 This repository contains a write-up of the project, along with designs for the enclosure and all related code. This was my first woodworking and Arduino project. As such, this write-up is written from the perspective of a beginner. Some parts here may seem obvious to more seasoned makers. If you spot any mistakes or misconceptions, please [open an issue](https://github.com/IllyaMoskvin/aic-nixie/issues).
 
+Lastly, I'll add that this write-up itself turned into a project. If you are not aware, there is a strong tradition among makers of keeping [project logs](https://hackaday.io/discover). I've often felt that I'm being neglectful by not writing enough about my side projects. I've definitely overcompensated for that here. My goal was to document "literally everything" about this project in a retrospective. I think I succeeded, but the result is on the long side. This is for me, but I hope you find something useful here, too.
+
 
 
 ## Table of Contents
 
- * [Photo Gallery](#photo-gallery)
- * [Inspiration](#inspiration)
- * [Design](#design)
- * [Components](#components)
-   * [Nixie Tubes: IN-12B](#nixie-tubes-in-12b)
-   * [Doayee's Nixie Driver](#doayees-nixie-driver)
-   * [Acrylic-Mounted PCBs](#acrylic-mounted-pcbs)
-     * [Adafruit HUZZAH ESP8266 Breakout](#adafruit-huzzah-esp8266-breakout)
-     * [HV PSU: YanZeyuan’s NCH6100HV](#hv-psu-yanzeyuans-nch6100hv)
-     * [LV PSU: DROK LM2596](#lv-psu-drok-lm2596)
- * [Assembly](#assembly)
-   * [Acrylic Plate for PCBs](#acrylic-plate-for-pcbs)
-   * [Walnut Wood Enclosure](#walnut-wood-enclosure)
-   * [Wiring](#wiring)
-   * [miTEC MSW-12A01 Button](#mitec-msw-12a01-button)
+*   [Photo Gallery](#photo-gallery)
+*   [Inspiration](#inspiration)
+*   [Design](#design)
+*   [Components](#components)
+    *   [Nixie Tubes: IN-12B](#nixie-tubes-in-12b)
+    *   [Doayee's Nixie Driver](#doayees-nixie-driver)
+    *   [Acrylic-Mounted PCBs](#acrylic-mounted-pcbs)
+        *   [Adafruit HUZZAH ESP8266 Breakout](#adafruit-huzzah-esp8266-breakout)
+        *   [HV PSU: YanZeyuan’s NCH6100HV](#hv-psu-yanzeyuans-nch6100hv)
+        *   [LV PSU: DROK LM2596](#lv-psu-drok-lm2596)
+*   [Assembly](#assembly)
+    *   [Acrylic Plate for PCBs](#acrylic-plate-for-pcbs)
+    *   [Walnut Wood Enclosure](#walnut-wood-enclosure)
+    *   [Wiring](#wiring)
+    *   [miTEC MSW-12A01 Button](#mitec-msw-12a01-button)
+*   [Programming](#programming)
+    *   [Requirements](#requirements)
+    *   [Installation](#installation)
+    *   [Errors](#errors)
+    *   [Wi-Fi Manager](#wi-fi-manager)
+    *   [Config Webserver](#config-webserver)
+    *   [Number Microservices](#number-microservices)
+*   [Animations](#animations)
+    *   [Hello World](#hello-world)
+    *   [Number Transition](#number-transition)
+    *   [IP Address Scroll](#ip-address-scroll)
+    *   [Screensaver](#screensaver)
+*   [Future Work](#future-work)
+*   [Rights and Permissions](#rights-and-permissions)
 
 
 
@@ -114,9 +130,9 @@ Taken in sum, these changes promised to be a challenge, both in terms of woodwor
 
 This counter was designed entirely in Adobe Illustrator CC. At the time, I was not proficient with 3D CAD software. I have no interest in making this design particularly easy to reproduce, but I'm willing to share the files:
 
- * [side.ai](designs/side.ai)
- * [back.ai](designs/back.ai)
- * [front.ai](designs/front.ai)
+* [side.ai](designs/side.ai)
+* [back.ai](designs/back.ai)
+* [front.ai](designs/front.ai)
 
 I made an effort to organize their contents, but they are provided as-is. There are definitely some inaccuracies relative to the finished counter. For example, you may notice that the acrylic piece was designed to mount a fourth PCB—this [TXS0108E 8-bit bi-directional level-shifter breakout](https://www.addicore.com/TXS0108E-p/ad284.htm). Turns out, it wasn't needed? Also, I used a different button than the one measured for the designs. Generally, the measurements for the back cutouts don't quite reflect the final product.
 
@@ -174,9 +190,9 @@ Speaking of LEDs, there's a single, stand-alone blue LED on the driver board tha
 
 Aside from the nixie driver, all of the other PCBs are mounted on a piece of laser-cut acrylic that's easy to remove from the enclosure for reprogramming. I'll discuss the particulars of this design in more depth [below](#acrylic-plate-for-pcbs), but for now, here is a photo of the PCBs for reference. From left to right:
 
-  * [Adafruit HUZZAH ESP8266 Breakout](#adafruit-huzzah-esp8266-breakout)
-  * [YanZeyuan’s NCH6100HV](#hv-psu-yanzeyuans-nch6100hv)
-  * [DROK LM2596](#lv-psu-drok-lm2596)
+* [Adafruit HUZZAH ESP8266 Breakout](#adafruit-huzzah-esp8266-breakout)
+* [YanZeyuan’s NCH6100HV](#hv-psu-yanzeyuans-nch6100hv)
+* [DROK LM2596](#lv-psu-drok-lm2596)
 
 
 #### Adafruit HUZZAH ESP8266 Breakout
@@ -315,4 +331,250 @@ So working with what I had on hand, I used [oven cleaner](https://www.youtube.co
 Lastly, I had to use some sandpaper to reduce the size of the nut until it fit into the 5/8" (15.875mm) Forstner hole. The original hole was designed based on measuring the generic push button. The nut for the MSW-12A01 was considerably larger, about 18.20mm. Sanding the nut did the trick, though it's still difficult to tighten. I have to use a screwdriver to push each facet of the nut at an angle until it's tightened. In retrospect, this Forstner hole should have been 3/4" wide.
 
 
-*To be continued...*
+
+## Programming
+
+The code running on the counter is simple. It's mainly concerned with [connecting to Wi-Fi](#wi-fi-manager), serving a [configuration page](#config-webserver), querying a number from the configured URL, and [animating the display](#animations). The actual logic of what to display is delegated to Python [microservices](#number-microservices) that run on my personal computer or elsewhere.
+
+
+### Requirements
+
+> **Note:** I highly recommend following the [installation](#installation) steps below to create a portable installation with the exact Arduino IDE, board core, and library versions needed by this project. I cannot guarantee that it'll work with any versions different than those used in development.
+
+This project was developed with the following Arduino IDE and ESP8266 board core versions:
+
+* [Arduino 1.8.9](https://www.arduino.cc/en/main/OldSoftwareReleases)
+* [esp8266 2.5.0](https://github.com/esp8266/Arduino/tree/2.5.0)
+
+Additionally, it needs the following libraries:
+
+* [NixieDriver_ESP](https://github.com/IllyaMoskvin/NixieDriver_ESP) (unofficial library by Joe Pasqua)
+* [OneButton](https://github.com/PatrickGlatz/OneButton) (PatrickGlatz's fork with triple-click)
+* [WiFiManager](https://github.com/tzapu/WiFiManager) ([1b8d870](https://github.com/tzapu/WiFiManager/commit/1b8d870))
+
+Lastly, you'll need [Python 3.x](https://www.python.org/downloads/) to run the [server](server) scripts and to [install the esp8266 board core](https://arduino-esp8266.readthedocs.io/en/latest/installing.html#using-git-version).
+
+
+### Installation
+
+Arduino does not have a dependency manager like [Composer](https://getcomposer.org/) or [npm](https://www.npmjs.com/) that allows us to install libraries on a per-project basis. The [Library Manager](https://www.arduino.cc/en/guide/libraries) and [Board Manager](https://www.arduino.cc/en/Tutorial/getting-started-with-ide-v2/ide-v2-board-manager) are [package managers, not dependency managers](https://stackoverflow.com/questions/27285783/package-manager-vs-dependency-manager) because they can only install dependencies globally. You cannot use them to "pin" specific versions of libraries or board cores for a project.
+
+However, it is possible to manage dependencies manually by using a separate sketchbook for each project. Here are two comments by [pert](https://github.com/per1234) from the Arduino Team describing the process:
+
+* [Filing a project with all of its libraries](https://forum.arduino.cc/t/filing-a-project-with-all-of-its-libraries/675817/2)
+* [Add a new board without Board Manager](https://forum.arduino.cc/t/add-new-board-without-board-manager-on-ide-1-6-8/379140/10)
+
+For this project, I've included the board core and libraries it needs as [Git submodules](https://git-scm.com/book/en/v2/Git-Tools-Submodules). After recursively cloning this repo, set it as your sketchbook location, and the project should compile. You can try using your existing Arduino IDE installation, but I recommend creating a [portable installation](https://www.arduino.cc/en/Guide/PortableIDE) specifically for this project, with an Arduino IDE version that is known to work.
+
+1.  Create a portable Arduino installation.
+
+    1.  Download [arduino-1.8.9-windows.zip](https://downloads.arduino.cc/arduino-1.8.9-windows.zip) from [OldSoftwareReleases](https://www.arduino.cc/en/main/OldSoftwareReleases).
+
+    1.  Extract the ZIP file somewhere to create `arduino-1.8.9`.
+
+    1.  Create a `portable` directory inside `arduino-1.8.9`.
+
+    1.  Run `arduino-1.8.9/arduino.exe`.
+
+    1.  Open **File > Preferences**.
+
+    1.  Uncheck **Check for updates on startup**.
+
+1.  Clone this repository and set it as your sketchbook location:
+
+    1.  Clone this repo wherever you clone code:
+
+        ```bash
+        git clone git@github.com:IllyaMoskvin/aic-nixie.git
+        ```
+
+    1.  Inside your repo, recursively initialize all Git submodules: in the `libraries` directory:
+
+        ```bash
+        git submodule update --init --recursive -- libraries/
+        ```
+
+    1.  Update **File > Preferences > Sketchbook location** to point at your repo.
+
+1.  Install the ESP8266 board core. There are two ways to do this:
+
+    1.  (Recommended) Use the `hardware/esp8266` submodule included with this repo.
+
+        1.  Inside your repo, recursively initialize all Git submodules in the `hardware/` directory:
+
+            ```bash
+            git submodule update --init --recursive -- hardware/
+            ```
+
+        1.  [Download binary tools](https://arduino-esp8266.readthedocs.io/en/latest/installing.html#using-git-version). From your repo:
+
+            ```bash
+            (cd hardware/esp8266com/esp8266/tools/ && python get.py)
+            ```
+
+        1. Restart the Arduino IDE or open (and close) the Board Manager to reload the board list.
+
+    1. (Alternative) Download the core via the Board Manager.
+
+        1.  Open **File > Preferences**.
+
+        1.  Enter this URL into the **Additional Boards Manager URLs** field:
+
+            ```
+            http://arduino.esp8266.com/stable/package_esp8266com_index.json
+            ```
+
+        1.  Open **Tools > Board > Board Manager...**
+
+        1.  Install **esp8266** by **ESP8266 Community** version **2.5.0**
+
+1.  Go to **Tools > Board > ESP8266 Boards (2.5.0)** and select **Adafruit Feather HUZZAH ESP8266**
+
+1.  Open **File > Sketchbook > sketches > NixieMain**
+
+1.  Run **Sketch > Verify/Compile** (Ctrl+R)
+
+If it says "Done compiling." without errors, congrats! You've got a portable installation of the Arduino IDE that's tailored specifically for this project. However, if you did not follow these steps, please do note that even though this project might compile with the "wrong" versions of libraries or the board core, unexpected errors may occur during runtime.
+
+
+### Errors
+
+Here are some errors you might see during compilation, along with their most likely causes:
+
+*   ```
+    OneButton.h: No such file or directory
+    ```
+
+    1.  You forgot to set this repository as the sketchbook location.
+
+    1.  You forgot to initialize the library submodules.
+
+*   ```
+    ESP8266WiFi.h: No such file or directory
+    ```
+
+    1.  You forgot to initialize the hardware submodules.
+
+    1.  You forgot to select an ESP8266 board.
+
+*   ```
+    exec: "[..]/hardware/esp8266com/esp8266/tools/xtensa-lx106-elf/bin/xtensa-lx106-elf-g++": file does not exist
+    ```
+
+    ...you forgot to download the binary tools.
+
+If the counter is stuck on 83770, it's in a restart loop because it's encountering an exception before it can retrieve the first number. Most likely, this is happening because you used the wrong version of the ESP8266 board core. See [Requirements](#requirements).
+
+You can try using the [Serial Monitor](https://www.arduino.cc/en/Tutorial/getting-started-with-ide-v2/ide-v2-serial-monitor) and the [ESP Exception Decoder](https://github.com/me-no-dev/EspExceptionDecoder) to [debug the exception](https://arduino-esp8266.readthedocs.io/en/latest/faq/a02-my-esp-crashes.html) being thrown. 
+
+
+### Wi-Fi Manager
+
+This project uses [tzapu/WiFiManager](https://github.com/tzapu/WiFiManager) to avoid hardcoding Wi-Fi credentials. If the counter cannot connect to Wi-Fi on startup, it'll launch WiFiManager. It'll create a new network called "Nixie", and the display will show `10.0.0.1`. If you connect to the "Nixie" network and navigate to http://10.0.0.1, you'll be able to select which Wi-Fi network the counter should connect to for normal operations. Your network selection and credentials will be saved to memory and used on next boot.
+
+If you need to change the Wi-Fi network, you can also launch the WiFiManager at any time by triple-clicking the counter's button. I used [PatrickGlatz's fork](https://github.com/PatrickGlatz/OneButton) of [mathertel/OneButton](https://github.com/mathertel/OneButton) to support triple-click.
+
+
+### Config Webserver
+
+If you double-click the counter's button, it will launch a webserver with a configuration webpage. It'll also [show its local IP address](#ip-address-scroll) via the nixies. If you are connected to the same network as the counter, you can configure it by navigating to this address in your browser.
+
+Via this webpage, you can set the host, port, and path that it will query to get what number it needs to display.
+
+
+### Number Microservices
+
+In order to determine what number to display, the counter queries the configured URL via HTTP every 5 seconds. It expects a simple response comprised of a 6-digit string followed by `\n`. The trailing newline [prevents a 5-second delay](https://forum.arduino.cc/t/esp8266-http-s-response-time/508540).
+
+Using Python 3.9.1, I've written several microservices that measure various things and return a number. They are meant to run either on my personal computer or on one of my remote servers. They all extend [nixie.py](server/nixie.py) and get invoked like so:
+
+```bash
+python rand.py
+```
+
+Here are the microservices I've written so far:
+
+Script | Description
+---|---
+[aic.py](server/aic.py) | Show number of artworks updated in the Art Institue of Chicago's API since 9:00 AM CT today.
+[cat.py](server/cat.py) \[path\] | Read a number from a file. (Use with something that writes to a file.)
+[fc.py](server/fc.py) \[path\] | Count number of files and folders in a directory.
+[rand.py](server/rand.py) | Show a random number.
+[wc.py](server/wc.py) \[path\] | Count number of lines in a Markdown file.
+
+
+
+## Animations
+
+One of the neat parts of this project was getting to design and code a variety of animations for the nixies. Motion design is not something that often comes up in my work. Figuring out how to design animations that showcase the unique nature of nixie tubes as a medium was a cool challenge.
+
+
+### Hello World
+
+On startup, the counter says "hello" in [leetspeak](https://en.wikipedia.org/wiki/Leet): 83770. The greeting remains displayed while the counter connects to Wi-Fi and queries the microservice for its first number. The transition animation is then used to transform 83770 into the returned number. Pretty straight-forward.
+
+
+### Number Transition
+
+One of the unique aspects of nixie tubes is their semi-three-dimensional nature. Each nixie tube has a stack of digits in it. Digits near the bottom (back) of the stack appear noticeably farther away than digits near the top (front). When a number towards the back of the stack is lit, it is somewhat obscured by the unlit segments in front of it. Overall, this creates a sense of dimensionality that is absent from [multi-segment displays](https://en.wikipedia.org/wiki/Sixteen-segment_display). When thinking about how to transition the display to a new number, I wanted to use that transition as an opportunity to highlight this dimensionality. 
+
+When the counter queries a microservice, it saves the response as the next number that should be displayed. Every 75 milliseconds, it will morph the currently displayed number one step towards the next number. Starting from the left, it finds the first tube that is different between the current number and the next. It takes the digits in that place from both numbers and compares their positions in the digit stack. Finally, it advances the current digit in that place one step along the digit stack towards the next digit. By doing this repeatedly, we create an animation wherein numbers seem to sink into and rise out of the tubes.
+
+From back to front, the digit stack order of IN-12 tubes is as follows: 1, 6, 2, 7, 5, 0, 4, 9, 8, 3.
+
+
+### IP Address Scroll
+
+When the button is double-clicked, the counter will show its IPv4 address within the local network. If someone on the same network visits that IP address via HTTP in their browser, they'll see the counter's [configuration page](#config-webserver). The IN-12B tubes contain a dot cathode, which is perfect for IP addresses. 
+
+This IP address is often [longer than six digits](https://en.wikipedia.org/wiki/Reserved_IP_addresses), so it may not be possible to show it all at once. I had to add a scroll animation to fix that issue. This animation is similar to the old HTML [marquee element](https://en.wikipedia.org/wiki/Marquee_element) with the "alternate" behavior to enable bouncing text. The six-digit window starts by showing the first six digits of the IP address. It then scrolls to the right until it reaches the end of the IP address, rests there a moment, scrolls back to the left, rests, and repeats.
+
+It's worthwhile noting that when the counter is in the [Wi-Fi Manager](#wi-fi-manager) state, rather than the [Config Webserver](#config-webserver) state, its address will always be `10.0.0.1` within the network it creates. This address is displayed right-aligned and does not use the scroll animation.
+
+
+### Screensaver
+
+Nixie tubes tend to develop “cathode poisoning” on digits that are not in regular use. When a nixie digit is lit, it sputters material, which sticks to the glass envelope, causing it to darken, and to other digits, causing them to be lit unevenly. It's possible to [detect cathode poisoning](https://surfncircuits.com/2019/04/06/eliminating-nixie-tube-cathode-poisoning-bi-quinary-digit-ghosting-and-heavily-oxidized-leads/) before it becomes visible and to heal it by [burning it away](http://www.tube-tester.com/sites/nixie/different/cathode%20poisoning/cathode-poisoning.htm). It can also be prevented by occasionally cycling through unused digits. This is a great excuse to create a neat "screensaver" animation.
+
+For my screensaver, I made a "wave" animation. Like the transition animation, this animation plays with the fact that there is a stack of digits in each tube. First, the display transitions into a blank state. Then, starting with the leftmost tube, each digit in the stack is lit up one at a time, from bottom to top. When the topmost digit in the leftmost tube is lit, we start doing the same for the tube to its right. When the topmost digit of that tube is also lit, we start decrementing the tube to its left, just as we start incementing the tube to its right, one digit at a time. Repeat this for all tubes, and we get an effect of a wave that moves from left to right across the display.
+
+Nixie tubes can [last for years of continuous operation](https://www.saltechips.com/lab/the-shine-experiment/), but cathode poisoning will become apparent long before that without proper prevention. Dalibor Farny [recommends a ratio of 300:1](https://docs.daliborfarny.com/documentation/cathode-poisoning-prevention-routine/) for cathode cycling their [R|Z568M](https://www.daliborfarny.com/product/rz568m-nixie-tube/) tubes. The ratio might be different for IN-12 tubes, but it's a good rule-of-thumb. My animation could be slowed down to meet that ratio.
+
+
+
+## Future Work
+
+They say a project is never finished, only abandoned. I have several improvements I'd like to make, someday:
+
+*   Make a custom power cord. Borrow some ideas from people who make [custom audio cables](https://www.headphonesty.com/2019/04/demevalos-guide-to-building-audio-cables/). Currently, I'm using an [Adafruit ADA1125](https://www.adafruit.com/product/1125) with a [12V 2.0A AC/DC adapter](https://www.amazon.com/gp/product/B07HNL5D56/). It works, but it spoils the aethetic. Some specifics:
+
+    *   Sleeve the cable with cloth or paracord. Or get a pre-sleeved cable from e.g. [VintageWire](https://www.etsy.com/listing/265642948/riverbed-cotton-cloth-covered-wire-8-ft).
+    *   Use a nicer on/off switch. I bought vintage [Hubbell No. 275 switches](https://www.etsy.com/listing/896312666/bakelite-lamp-cord-onoff-switches) that would be perfect here.
+    *   Use a nicer 5.5mm x 2.1mm barrel plug. Maybe the [MDFLY CMP-CT0027](https://www.mdfly.com/products/5-5mm-x-2-1mm-5-5-2-1-dc-power-barrel-plug-metal-free-hanging-pack-of-2.html) or the [Switchcraft 762](https://www.switchcraft.com/Product.aspx?ID=7005) or [762Z](https://www.switchcraft.com/Product.aspx?ID=9403).
+    *   Modify an AC adapter to accept sleeved twisted pair wiring ([example](https://www.alibaba.com/product-detail/Electrical-Fabric-cover-Wire-cord-set_1600057270947.html)). 
+
+*   Hard-fork [mathertel/OneButton](https://github.com/mathertel/OneButton). Or just rewrite it from scratch. I'm grateful to its author for creating and maintaining this library, but I've run into a few issues with it while making this project. These issues are fundamental to the fact that it is a finite-state machine, which is in turn a [fundamental aspect of this library](http://www.mathertel.de/Arduino/OneButtonLibrary.aspx).
+
+    *   It only supports double-clicks, not multi-clicks ([#50](https://github.com/mathertel/OneButton/issues/50)).
+    *   It can't handle interrupts reliably ([#89](https://github.com/mathertel/OneButton/issues/89), [#28](https://github.com/mathertel/OneButton/issues/28)).
+
+*   Swap in an [IN-15A](http://www.tube-tester.com/sites/nixie/data/in-15a.htm) or [IN-15B](http://www.tube-tester.com/sites/nixie/data/IN-15B/in-15b.htm) tube. I'm particularly interested in the +/− symbols on the IN-15A. Might be neat to use them to track e.g. number of lines added/deleted in a [git working directory](https://medium.com/hackernoon/understanding-git-index-4821a0765cf).
+
+*   Add a temperature sensor (e.g. [TMP36](https://learn.adafruit.com/tmp36-temperature-sensor/using-a-temp-sensor)). This would be a temporary change. I neglected to add any vent holes to the enclosure. I did try to pick out components that ran cool, and there is some airflow through the tube cut-outs in the front face, but it'd be nice to know how hot it actually gets in there. 
+
+*   Use the RGB LEDs on the Doayee driver for backlighting. For that [100% Completion](https://tvtropes.org/pmwiki/pmwiki.php/Main/HundredPercentCompletion) feeling.
+
+
+
+## Rights and Permissions
+
+I made this counter while employed at the [Art Institute of Chicago](https://www.artic.edu). The project was originally inspired by my desire to promote the launch of its [public API](https://www.artic.edu/open-access/public-api). I want to recognize that legacy and take this opportunity to promote the work being done there to make their institutional data more accessible to the public.
+
+However, this project was not organized, funded, or supported by the Art Institute of Chicago. This counter was made entirely on my own time, using my own materials. And over time, this project evolved to be more about measuring my personal work, rather than anything going on at my place of employment.
+
+Therefore, I consider the work that I did for this project be entirely my own. I'm releasing it under the following licenses:
+
+* [CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/) for the design
+* [MIT License](LICENSE) for the code
+
+In short, you can do whatever you'd like with my code and designs, but (1) I take no responsibility if something goes wrong, and (2) it would be nice if you could credit me and link back to this project. Note that the license terms for the libraries and components used in this project may differ from my original contributions to the final product.

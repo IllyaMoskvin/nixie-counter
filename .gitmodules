@@ -1,0 +1,12 @@
+[submodule "libraries/OneButton"]
+	path = libraries/OneButton
+	url = git@github.com:PatrickGlatz/OneButton.git
+[submodule "libraries/WiFiManager"]
+	path = libraries/WiFiManager
+	url = git@github.com:tzapu/WiFiManager.git
+[submodule "libraries/NixieDriver_ESP"]
+	path = libraries/NixieDriver_ESP
+	url = git@github.com:IllyaMoskvin/NixieDriver_ESP.git
+[submodule "hardware/esp8266"]
+	path = hardware/esp8266com/esp8266
+	url = git@github.com:esp8266/Arduino.git
