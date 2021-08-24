@@ -14,6 +14,8 @@ Over time, what this project represents has shifted in practice to be less about
 
 This repository contains a write-up of the project, along with designs for the enclosure and all related code. This was my first woodworking and Arduino project. As such, this write-up is written from the perspective of a beginner. Some parts here may seem obvious to more seasoned makers. If you spot any mistakes or misconceptions, please [open an issue](https://github.com/IllyaMoskvin/aic-nixie/issues).
 
+Lastly, I'll add that this write-up itself turned into a project. If you are not aware, there is a strong tradition among makers of keeping [project logs](https://hackaday.io/discover). I've often felt that I'm being neglectful by not writing enough about my side projects. I've definitely overcompensated for that here. My goal was to document "literally everything" about this project in a retrospective. I think I succeeded, but the result is on the long side. This is for me, but I hope you find something useful here, too.
+
 
 
 ## Table of Contents
