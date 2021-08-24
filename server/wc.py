@@ -13,7 +13,7 @@ class WordCountHTTPRequestHandler(nixie.NixieHTTPRequestHandler):
         super().__init__(*args, **kwargs)
 
     def get_data(self):
-        with open(self.file_path, 'r') as myfile:
+        with open(self.file_path, 'r', encoding='utf8') as myfile:
             data = myfile.read()
 
         return self.count_words_in_markdown(data)
