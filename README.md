@@ -332,7 +332,7 @@ Lastly, I had to use some sandpaper to reduce the size of the nut until it fit i
 
 ## Programming
 
-*WIP*
+The code running on the counter is simple. It's mainly concerned with [connecting to Wi-Fi](#wi-fi-manager), serving a [configuration page](#config-webserver), querying a number from the configured URL, and [animating the display](#animations). The actual logic of what to display is delegated to Python [microservices](#number-microservices) that run on my personal computer or elsewhere.
 
 
 ### Requirements
