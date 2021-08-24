@@ -468,7 +468,9 @@ You can try using the [Serial Monitor](https://www.arduino.cc/en/Tutorial/gettin
 
 ### Wi-Fi Manager
 
-*WIP*
+This project uses [tzapu/WiFiManager](https://github.com/tzapu/WiFiManager) to avoid hardcoding Wi-Fi credentials. If the counter cannot connect to Wi-Fi on startup, it'll launch WiFiManager. It'll create a new network called "Nixie", and the display will show `10.0.0.1`. If you connect to the "Nixie" network and navigate to http://10.0.0.1, you'll be able to select which Wi-Fi network the counter should connect to for normal operations. Your network selection and credentials will be saved to memory and used on next boot.
+
+If you need to change the Wi-Fi network, you can also launch the WiFiManager at any time by triple-clicking the counter's button. I used [PatrickGlatz's fork](https://github.com/PatrickGlatz/OneButton) of [mathertel/OneButton](https://github.com/mathertel/OneButton) to support triple-click.
 
 
 ### Config Webserver
