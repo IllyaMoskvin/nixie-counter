@@ -65,15 +65,23 @@ const char* WIFI_AP_SSID PROGMEM = "Nixie";
 // Serve the config webserver via normal HTTP
 ESP8266WebServer server(80);
 
+// If false, config webserver only runs when showing its IP address
+const bool keepWebserverRunningDefault = false;
+bool keepWebserverRunning;
+
 // Minify, then replace " with \", and % with %% in CSS, but keep %s in form
 // https://forum.arduino.cc/index.php?topic=293408.0
 // https://www.arduino.cc/reference/en/language/variables/utilities/progmem/
-const char* indexHtml PROGMEM = "<!doctype html><html lang=en><meta name=viewport content='width=device-width,initial-scale=1'><link rel=icon href=data:,><title>Nixie</title><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css><link rel=stylesheet href='https://fonts.googleapis.com/css?family=Nixie+One&display=swap'><style>*{box-sizing:border-box}html{background:#ddd;font-family:sans-serif;text-align:center}div{padding-top:1.5em;background:#eee;border-top:3px solid #ccc;border-bottom:3px solid #ccc}h1{padding:2rem;font-size:2rem;font-weight:600;font-family:'Nixie One',sans-serif}hr{margin:0;border:0;border-width:3px;border-bottom:3px solid #ccc;margin-bottom:1.5em}div{text-align:left}label{display:block;margin:0 0 .5rem 1rem}input[type=number],input[type=text]{width:100%%;margin-bottom:1.5rem;padding:.75rem 1rem;border:none;color:#555;font-size:.9rem}input[type=submit]{cursor:pointer;margin:1.5em;padding:.5rem 2rem;background:#636363;border:none;color:#fff;font-size:1rem}</style><h1>Nixie</h1><form action=/update method=get><div><label for=host>Host</label> <input type=text name=host id=host value=%s maxlength=39 required> <label for=port>Port</label> <input type=number name=port id=port value=%s min=1 max=65535 required> <label for=path>Path</label> <input type=text name=path id=path value=%s maxlength=254 required><hr><label for=screensaver>Screensaver interval (milliseconds)</label> <input type=number name=screensaver id=screensaver value=%s min=1 max=4294967295 required></div><input type=submit value=Update></form>";
+const char* indexHtml PROGMEM = "<!doctype html><html lang=en><meta name=viewport content='width=device-width,initial-scale=1'><link rel=icon href=data:,><title>Nixie</title><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css><link rel=stylesheet href='https://fonts.googleapis.com/css?family=Nixie+One&display=swap'><style>*{box-sizing:border-box}html{background:#ddd;font-family:sans-serif;text-align:center}div{padding-top:1.5em;background:#eee;border-top:3px solid #ccc;border-bottom:3px solid #ccc}h1{padding:2rem;font-size:2rem;font-weight:600;font-family:'Nixie One',sans-serif}hr{margin:0;border:0;border-width:3px;border-bottom:3px solid #ccc;margin-bottom:1.5em}div{text-align:left}label{display:block;margin:0 0 .5rem 1rem}input[type=checkbox]+label{display:inline-block;margin-left:0;padding-left:1rem;margin-bottom:1.5rem}input[type=checkbox]{margin-left:1rem}input[type=number],input[type=text]{width:100%%;margin-bottom:1.5rem;padding:.75rem 1rem;border:none;color:#555;font-size:.9rem}input[type=submit]{cursor:pointer;margin:1.5em;padding:.5rem 2rem;background:#636363;border:none;color:#fff;font-size:1rem}</style><h1>Nixie</h1><form action=/update method=get><div><label for=host>Host</label> <input type=text name=host id=host value=%s maxlength=39 required> <label for=port>Port</label> <input type=number name=port id=port value=%s min=1 max=65535 required> <label for=path>Path</label> <input type=text name=path id=path value=%s maxlength=254 required><hr><label for=screensaver>Screensaver interval (milliseconds)</label> <input type=number name=screensaver id=screensaver value=%s min=1 max=4294967295 required><hr><input type=checkbox id=webserver name=webserver %s> <label for=webserver>Always run webserver</label></div><input type=submit value=Update></form>";
 const char* updateHtml PROGMEM = "<!doctype html><html lang=en><meta http-equiv=refresh content='5; URL=/'><meta name=viewport content='width=device-width,initial-scale=1'><link rel=icon href=data:,><title>Nixie</title><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css><link rel=stylesheet href='https://fonts.googleapis.com/css?family=Nixie+One&display=swap'><style>*{box-sizing:border-box}html{background:#ddd;font-family:sans-serif;text-align:center}h1{padding:2rem;font-size:2rem;font-weight:600;font-family:'Nixie One',sans-serif}</style><h1>%S</h1><h2>Returning to form...</h2>";
 
 // Keep this global to avoid risking giant memory holes
 // TODO; https://github.com/me-no-dev/ESPAsyncWebServer
 char bufferHtml[2000];
+
+// Helpers for checkboxes
+const char* CHECKBOX_CHECKED PROGMEM = "checked";
+const char* CHECKBOX_EMPTY PROGMEM = "";
 
 // Generally, host could be up to 254 = 253 max for domain + 1 for null terminator
 // https://webmasters.stackexchange.com/questions/16996/maximum-domain-name-length
@@ -231,6 +239,10 @@ void setup()
   server.on(F("/update"), handleUpdate);
   server.onNotFound(handleNotFound);
 
+  if (keepWebserverRunning) {
+    server.begin();
+  }
+
   // Allow input last
   button.attachClick(handleClick);
   button.attachDoubleClick(handleDoubleClick);
@@ -240,6 +252,10 @@ void setup()
 void loop()
 {
   button.tick();
+
+  if (keepWebserverRunning) {
+    server.handleClient();
+  }
 
   switch (currentState) {
     case STATE_DEFAULT:
@@ -313,7 +329,9 @@ void loopStateCycle()
 
 void loopStateWebserver()
 {
-  server.handleClient();
+  if (!keepWebserverRunning) {
+    server.handleClient();
+  }
 
   if (millis() - ipCheckedAt > ipCheckInterval) {
     checkIP();
@@ -349,7 +367,9 @@ void handleDoubleClick()
     case STATE_DEFAULT:
       currentState = STATE_WEBSERVER;
       memcpy(savedDigits, currentDigits, sizeof(currentDigits));
-      server.begin();
+      if (!keepWebserverRunning) {
+        server.begin();
+      }
       currentIP[0] = '\0';
       checkIP();
       break;
@@ -357,7 +377,9 @@ void handleDoubleClick()
       currentState = STATE_DEFAULT;
       memcpy(currentDigits, savedDigits, sizeof(savedDigits));
       numberSetAt = millis();
-      server.stop();
+      if (!keepWebserverRunning) {
+        server.stop();
+      }
       break;
   }
 
@@ -612,8 +634,10 @@ void handleRoot()
   char cycleBeginIntervalDisplay[10];
   ltoa(cycleBeginInterval, cycleBeginIntervalDisplay, 10);
 
-  // Form field order: host, port, path, screensaver
-  snprintf_P(bufferHtml, sizeof(bufferHtml), indexHtml, apiHost, apiPortDisplay, apiPath, cycleBeginIntervalDisplay);
+  const char * keepWebserverRunningDisplay = keepWebserverRunning ? (PGM_P) CHECKBOX_CHECKED : (PGM_P) CHECKBOX_EMPTY;
+
+  // Form field order: host, port, path, screensaver, webserver
+  snprintf_P(bufferHtml, sizeof(bufferHtml), indexHtml, apiHost, apiPortDisplay, apiPath, cycleBeginIntervalDisplay, keepWebserverRunningDisplay);
   server.send(200, F("text/html"), bufferHtml);
 }
 
@@ -623,6 +647,7 @@ void handleUpdate()
     return sendUpdate(400, F("Missing param."));
   }
 
+  // Handle required parameters
   const String & apiHostNew = server.arg(F("host"));
   const String & apiPathNew = server.arg(F("path"));
   const String & apiPortNew = server.arg(F("port"));
@@ -636,7 +661,10 @@ void handleUpdate()
   unsigned int apiPortParsed = apiPortNew.toInt();
   unsigned long cycleBeginIntervalParsed = cycleBeginIntervalNew.toInt();
 
-  if (apiHostNew == apiHost && apiPathNew == apiPath && apiPortParsed == apiPort && cycleBeginIntervalParsed == cycleBeginInterval) {
+  // Checkboxes are omitted from request if left unchecked
+  bool keepWebserverRunningParsed = server.hasArg(F("webserver"));
+
+  if (apiHostNew == apiHost && apiPathNew == apiPath && apiPortParsed == apiPort && cycleBeginIntervalParsed == cycleBeginInterval && keepWebserverRunningParsed == keepWebserverRunning) {
     return sendUpdate(400, F("Params not changed."));
   }
 
@@ -652,11 +680,24 @@ void handleUpdate()
   Serial.print(F("New screensaver interval: "));
   Serial.println(cycleBeginIntervalParsed);
 
+  Serial.print(F("New webserver setting: "));
+  Serial.println(keepWebserverRunningParsed);
+
   apiHostNew.toCharArray(apiHost, sizeof(apiHost));
   apiPathNew.toCharArray(apiPath, sizeof(apiPath));
 
   apiPort = apiPortParsed;
   cycleBeginInterval = cycleBeginIntervalParsed;
+
+  if (keepWebserverRunningParsed && !keepWebserverRunning) {
+    server.begin();
+  }
+
+  if (!keepWebserverRunningParsed && keepWebserverRunning) {
+    server.stop();
+  }
+
+  keepWebserverRunning = keepWebserverRunningParsed;
 
   saveParamsToEEPROM();
 
@@ -702,12 +743,13 @@ void handleNotFound()
 
 void loadParamsFromEEPROM()
 {
-  EEPROM.begin(sizeof(apiHost) + sizeof(apiPath) + sizeof(apiPort) + sizeof(cycleBeginInterval) + sizeof(memEndCurrent));
+  EEPROM.begin(sizeof(apiHost) + sizeof(apiPath) + sizeof(apiPort) + sizeof(cycleBeginInterval) + sizeof(keepWebserverRunning) + sizeof(memEndCurrent));
   EEPROM.get(0, apiHost);
   EEPROM.get(0 + sizeof(apiHost), apiPath);
   EEPROM.get(0 + sizeof(apiHost) + sizeof(apiPath), apiPort);
   EEPROM.get(0 + sizeof(apiHost) + sizeof(apiPath) + sizeof(apiPort), cycleBeginInterval);
-  EEPROM.get(0 + sizeof(apiHost) + sizeof(apiPath) + sizeof(apiPort) + sizeof(cycleBeginInterval), memEndCurrent);
+  EEPROM.get(0 + sizeof(apiHost) + sizeof(apiPath) + sizeof(apiPort) + sizeof(cycleBeginInterval), keepWebserverRunning);
+  EEPROM.get(0 + sizeof(apiHost) + sizeof(apiPath) + sizeof(apiPort) + sizeof(cycleBeginInterval) + sizeof(keepWebserverRunning), memEndCurrent);
   EEPROM.end();
 
   // Uncomment to simulate EEPROM read fail:
@@ -721,6 +763,7 @@ void loadParamsFromEEPROM()
     strcpy_P(apiPath, apiPathDefault);
     apiPort = apiPortDefault;
     cycleBeginInterval = cycleBeginIntervalDefault;
+    keepWebserverRunning = keepWebserverRunningDefault;
     saveParamsToEEPROM();
   }
 
@@ -735,16 +778,20 @@ void loadParamsFromEEPROM()
 
   Serial.print(F("Screensaver interval: "));
   Serial.println(cycleBeginInterval);
+
+  Serial.print(F("Keep webserver running: "));
+  Serial.println(keepWebserverRunning);
 }
 
 void saveParamsToEEPROM()
 {
-  EEPROM.begin(sizeof(apiHost) + sizeof(apiPath) + sizeof(apiPort) + sizeof(cycleBeginInterval) + sizeof(memEndDefined));
+  EEPROM.begin(sizeof(apiHost) + sizeof(apiPath) + sizeof(apiPort) + sizeof(cycleBeginInterval) + sizeof(keepWebserverRunning) + sizeof(memEndDefined));
   EEPROM.put(0, apiHost);
   EEPROM.put(0 + sizeof(apiHost), apiPath);
   EEPROM.put(0 + sizeof(apiHost) + sizeof(apiPath), apiPort);
   EEPROM.put(0 + sizeof(apiHost) + sizeof(apiPath) + sizeof(apiPort), cycleBeginInterval);
-  EEPROM.put(0 + sizeof(apiHost) + sizeof(apiPath) + sizeof(apiPort) + sizeof(cycleBeginInterval), memEndDefined);
+  EEPROM.put(0 + sizeof(apiHost) + sizeof(apiPath) + sizeof(apiPort) + sizeof(cycleBeginInterval), keepWebserverRunning);
+  EEPROM.put(0 + sizeof(apiHost) + sizeof(apiPath) + sizeof(apiPort) + sizeof(cycleBeginInterval) + sizeof(keepWebserverRunning), memEndDefined);
   EEPROM.end();
 }
 
