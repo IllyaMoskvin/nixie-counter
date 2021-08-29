@@ -68,7 +68,7 @@ ESP8266WebServer server(80);
 // Minify, then replace " with \", and % with %% in CSS, but keep %s in form
 // https://forum.arduino.cc/index.php?topic=293408.0
 // https://www.arduino.cc/reference/en/language/variables/utilities/progmem/
-const char* indexHtml PROGMEM = "<!doctype html><html lang=en><meta name=viewport content='width=device-width,initial-scale=1'><link rel=icon href=data:,><title>Nixie</title><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css><link rel=stylesheet href='https://fonts.googleapis.com/css?family=Nixie+One&display=swap'><style>*{box-sizing:border-box}html{background:#ddd;font-family:sans-serif;text-align:center}div{padding-top:1.5em;background:#eee;border-top:3px solid #ccc;border-bottom:3px solid #ccc}h1{padding:2rem;font-size:2rem;font-weight:600;font-family:'Nixie One',sans-serif}div{text-align:left}label{display:block;margin:0 0 .5rem 1rem}input[type=number],input[type=text]{width:100%%;margin-bottom:1.5rem;padding:.75rem 1rem;border:none;color:#555;font-size:.9rem}input[type=submit]{cursor:pointer;margin:1.5em;padding:.5rem 2rem;background:#636363;border:none;color:#fff;font-size:1rem}</style><h1>Nixie</h1><form action=/update method=get><div><label for=host>Host</label> <input type=text name=host id=host value=%s maxlength=39 required> <label for=port>Port</label> <input type=number name=port id=port value=%s min=1 max=65535 required> <label for=path>Path</label> <input type=text name=path id=path value=%s maxlength=254 required></div><input type=submit value=Update></form>";
+const char* indexHtml PROGMEM = "<!doctype html><html lang=en><meta name=viewport content='width=device-width,initial-scale=1'><link rel=icon href=data:,><title>Nixie</title><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css><link rel=stylesheet href='https://fonts.googleapis.com/css?family=Nixie+One&display=swap'><style>*{box-sizing:border-box}html{background:#ddd;font-family:sans-serif;text-align:center}div{padding-top:1.5em;background:#eee;border-top:3px solid #ccc;border-bottom:3px solid #ccc}h1{padding:2rem;font-size:2rem;font-weight:600;font-family:'Nixie One',sans-serif}hr{margin:0;border:0;border-width:3px;border-bottom:3px solid #ccc;margin-bottom:1.5em}div{text-align:left}label{display:block;margin:0 0 .5rem 1rem}input[type=number],input[type=text]{width:100%%;margin-bottom:1.5rem;padding:.75rem 1rem;border:none;color:#555;font-size:.9rem}input[type=submit]{cursor:pointer;margin:1.5em;padding:.5rem 2rem;background:#636363;border:none;color:#fff;font-size:1rem}</style><h1>Nixie</h1><form action=/update method=get><div><label for=host>Host</label> <input type=text name=host id=host value=%s maxlength=39 required> <label for=port>Port</label> <input type=number name=port id=port value=%s min=1 max=65535 required> <label for=path>Path</label> <input type=text name=path id=path value=%s maxlength=254 required><hr><label for=screensaver>Screensaver interval (milliseconds)</label> <input type=number name=screensaver id=screensaver value=%s min=1 max=4294967295 required></div><input type=submit value=Update></form>";
 const char* updateHtml PROGMEM = "<!doctype html><html lang=en><meta http-equiv=refresh content='5; URL=/'><meta name=viewport content='width=device-width,initial-scale=1'><link rel=icon href=data:,><title>Nixie</title><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css><link rel=stylesheet href='https://fonts.googleapis.com/css?family=Nixie+One&display=swap'><style>*{box-sizing:border-box}html{background:#ddd;font-family:sans-serif;text-align:center}h1{padding:2rem;font-size:2rem;font-weight:600;font-family:'Nixie One',sans-serif}</style><h1>%S</h1><h2>Returning to form...</h2>";
 
 // Keep this global to avoid risking giant memory holes
@@ -115,8 +115,10 @@ const byte CYCLE_END = 2; // exit cycle state
 byte cycleState = CYCLE_BEGIN;
 byte cycleOffset = 0;
 
-// TODO: Make this definable via webserver and store in EEPROM
-unsigned long cycleBeginInterval = 900000; // how often to enter cycle mode (15 min)
+// Definable via webserver and stored in EEPROM
+const unsigned long cycleBeginIntervalDefault PROGMEM = 900000; // 15 min
+
+unsigned long cycleBeginInterval; // how often to enter cycle mode
 unsigned long cycleBeganAt;
 
 
@@ -607,28 +609,34 @@ void handleRoot()
   char apiPortDisplay[5];
   itoa(apiPort, apiPortDisplay, 10);
 
-  // Form field order: host, port, path
-  snprintf_P(bufferHtml, sizeof(bufferHtml), indexHtml, apiHost, apiPortDisplay, apiPath);
+  char cycleBeginIntervalDisplay[10];
+  ltoa(cycleBeginInterval, cycleBeginIntervalDisplay, 10);
+
+  // Form field order: host, port, path, screensaver
+  snprintf_P(bufferHtml, sizeof(bufferHtml), indexHtml, apiHost, apiPortDisplay, apiPath, cycleBeginIntervalDisplay);
   server.send(200, F("text/html"), bufferHtml);
 }
 
 void handleUpdate()
 {
-  if (!server.hasArg(F("host")) || !server.hasArg(F("path")) || !server.hasArg(F("port"))) {
+  if (!server.hasArg(F("host")) || !server.hasArg(F("path")) || !server.hasArg(F("port")) || !server.hasArg(F("screensaver"))) {
     return sendUpdate(400, F("Missing param."));
   }
 
   const String & apiHostNew = server.arg(F("host"));
   const String & apiPathNew = server.arg(F("path"));
   const String & apiPortNew = server.arg(F("port"));
+  const String & cycleBeginIntervalNew = server.arg(F("screensaver"));
 
-  if (apiHostNew.length() == 0 || apiPathNew.length() == 0 || apiPortNew.length() == 0) {
+  if (apiHostNew.length() == 0 || apiPathNew.length() == 0 || apiPortNew.length() == 0 || cycleBeginIntervalNew.length() == 0) {
     return sendUpdate(400, F("Param is empty."));
   }
 
+  // https://forum.arduino.cc/t/convert-string-to-long/481463/3
   unsigned int apiPortParsed = apiPortNew.toInt();
+  unsigned long cycleBeginIntervalParsed = cycleBeginIntervalNew.toInt();
 
-  if (apiHostNew == apiHost && apiPathNew == apiPath && apiPortParsed == apiPort) {
+  if (apiHostNew == apiHost && apiPathNew == apiPath && apiPortParsed == apiPort && cycleBeginIntervalParsed == cycleBeginInterval) {
     return sendUpdate(400, F("Params not changed."));
   }
 
@@ -641,10 +649,14 @@ void handleUpdate()
   Serial.print(F("New port: "));
   Serial.println(apiPortParsed);
 
+  Serial.print(F("New screensaver interval: "));
+  Serial.println(cycleBeginIntervalParsed);
+
   apiHostNew.toCharArray(apiHost, sizeof(apiHost));
   apiPathNew.toCharArray(apiPath, sizeof(apiPath));
 
   apiPort = apiPortParsed;
+  cycleBeginInterval = cycleBeginIntervalParsed;
 
   saveParamsToEEPROM();
 
@@ -690,11 +702,12 @@ void handleNotFound()
 
 void loadParamsFromEEPROM()
 {
-  EEPROM.begin(sizeof(apiHost) + sizeof(apiPath) + sizeof(apiPort) + sizeof(memEndCurrent));
+  EEPROM.begin(sizeof(apiHost) + sizeof(apiPath) + sizeof(apiPort) + sizeof(cycleBeginInterval) + sizeof(memEndCurrent));
   EEPROM.get(0, apiHost);
   EEPROM.get(0 + sizeof(apiHost), apiPath);
   EEPROM.get(0 + sizeof(apiHost) + sizeof(apiPath), apiPort);
-  EEPROM.get(0 + sizeof(apiHost) + sizeof(apiPath) + sizeof(apiPort), memEndCurrent);
+  EEPROM.get(0 + sizeof(apiHost) + sizeof(apiPath) + sizeof(apiPort), cycleBeginInterval);
+  EEPROM.get(0 + sizeof(apiHost) + sizeof(apiPath) + sizeof(apiPort) + sizeof(cycleBeginInterval), memEndCurrent);
   EEPROM.end();
 
   // Uncomment to simulate EEPROM read fail:
@@ -707,6 +720,7 @@ void loadParamsFromEEPROM()
     strcpy_P(apiHost, apiHostDefault);
     strcpy_P(apiPath, apiPathDefault);
     apiPort = apiPortDefault;
+    cycleBeginInterval = cycleBeginIntervalDefault;
     saveParamsToEEPROM();
   }
 
@@ -718,15 +732,19 @@ void loadParamsFromEEPROM()
 
   Serial.print(F("Port: "));
   Serial.println(apiPort);
+
+  Serial.print(F("Screensaver interval: "));
+  Serial.println(cycleBeginInterval);
 }
 
 void saveParamsToEEPROM()
 {
-  EEPROM.begin(sizeof(apiHost) + sizeof(apiPath) + sizeof(apiPort) + sizeof(memEndDefined));
+  EEPROM.begin(sizeof(apiHost) + sizeof(apiPath) + sizeof(apiPort) + sizeof(cycleBeginInterval) + sizeof(memEndDefined));
   EEPROM.put(0, apiHost);
   EEPROM.put(0 + sizeof(apiHost), apiPath);
   EEPROM.put(0 + sizeof(apiHost) + sizeof(apiPath), apiPort);
-  EEPROM.put(0 + sizeof(apiHost) + sizeof(apiPath) + sizeof(apiPort), memEndDefined);
+  EEPROM.put(0 + sizeof(apiHost) + sizeof(apiPath) + sizeof(apiPort), cycleBeginInterval);
+  EEPROM.put(0 + sizeof(apiHost) + sizeof(apiPath) + sizeof(apiPort) + sizeof(cycleBeginInterval), memEndDefined);
   EEPROM.end();
 }
 
