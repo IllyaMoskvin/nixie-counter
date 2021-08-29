@@ -471,6 +471,15 @@ If the counter is stuck on 83770, it's in a restart loop because it's encounteri
 
 You can try using the [Serial Monitor](https://www.arduino.cc/en/Tutorial/getting-started-with-ide-v2/ide-v2-serial-monitor) and the [ESP Exception Decoder](https://github.com/me-no-dev/EspExceptionDecoder) to [debug the exception](https://arduino-esp8266.readthedocs.io/en/latest/faq/a02-my-esp-crashes.html) being thrown. 
 
+Lastly, if the counter runs into issues while attempting to query the API, it will show an error code. These error codes are displayed left-aligned, while normal numbers are displayed right-aligned. At the moment, they are all single-digit numbers, so there should be no confusion. Here are the current error codes:
+
+Code | Error | Comment
+---|---|---
+1 | ERROR_CONNECTION_FAILED | Host and/or port is unreachable.
+2 | ERROR_REQUEST_FAILED | Connection was interrupted while making request.
+3 | ERROR_RESPONSE_UNEXPECTED | Response is not `HTTP/1.1 200 OK`.
+4 | ERROR_RESPONSE_INVALID | Cannot find end of header in response.
+
 
 ### Wi-Fi Manager
 
