@@ -239,6 +239,8 @@ I neglected to take in-progress photos while making the counter, but these shoul
                 <img src="images/photos/10-nixie-mounts-tn.jpg">
             </a>
         </td>
+    </tr>
+    <tr>
         <td>
             <a href="https://raw.githubusercontent.com/IllyaMoskvin/aic-nixie/master/images/photos/11-acrylic-plate.jpg">
                 <img src="images/photos/11-acrylic-plate-tn.jpg">
