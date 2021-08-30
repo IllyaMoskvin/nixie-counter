@@ -358,7 +358,9 @@ Additionally, it needs the following libraries:
 * [OneButton](https://github.com/PatrickGlatz/OneButton) (PatrickGlatz's fork with triple-click)
 * [WiFiManager](https://github.com/tzapu/WiFiManager) ([1b8d870](https://github.com/tzapu/WiFiManager/commit/1b8d870))
 
-Lastly, you'll need [Python 3.x](https://www.python.org/downloads/) to run the [server](server) scripts and to [install the esp8266 board core](https://arduino-esp8266.readthedocs.io/en/latest/installing.html#using-git-version).
+You'll need [Python 3.x](https://www.python.org/downloads/) to run the [server](server) scripts and to [install the esp8266 board core](https://arduino-esp8266.readthedocs.io/en/latest/installing.html#using-git-version).
+
+For editing webpages served by the [config webserver](https://github.com/kangax/html-minifier), you may use the provided [minify.sh](sketches/NixieMain/html/minify.sh), which expects [HTMLMinifier](https://github.com/kangax/html-minifier) to be installed globally using [npm](https://www.npmjs.com/).
 
 
 ### Installation
@@ -494,7 +496,17 @@ If you need to change the Wi-Fi network, you can also launch the WiFiManager at 
 
 If you double-click the counter's button, it will launch a webserver with a configuration webpage. It'll also [show its local IP address](#ip-address-scroll) via the nixies. If you are connected to the same network as the counter, you can configure it by navigating to this address in your browser.
 
-Via this webpage, you can set the host, port, and path that it will query to get what number it needs to display.
+Via this webpage, you can set the host, port, and path that it will query to get what number it needs to display. These settings get saved to EEPROM. When the counter is restarted, it reads these values from EEPROM, or falls back to defaults. Because we only write to EEPROM when the values get updated, we don't need to worry about [memory wear](https://design.goeszen.com/mitigating-flash-wear-on-the-esp8266-or-any-other-microcontroller-with-flash.html).
+
+The source code for the two routes on the server (`/` and `/update`) is hardcoded into the sketch. They are minified to reduce the space required. For my workflow, I keep two original files, [index.html](sketches/NixieMain/html/index.html) and [update.html](sketches/NixieMain/html/update.html). I make my edits in those files, and run them through [minify.sh](sketches/NixieMain/html/minify.sh), for example:
+
+```bash
+./minify.sh index.html > index.min.html
+```
+
+This produces minified template code, which should be pasted into the [`indexHtml` and `updateHtml` variables](sketches/NixieMain/NixieMain.ino#L71-L72). There might be a [cleaner way](https://www.mischianti.org/2020/10/26/web-server-with-esp8266-and-esp32-byte-array-gzipped-pages-and-spiffs-2/) to do this using [SPIFFS](https://www.mischianti.org/2019/08/30/wemos-d1-mini-esp8266-integrated-spiffs-filesistem-part-2/), but this works well for now.
+
+This was a neat exercise in exploring how the HTTP request/response cycle works on a lower level than my work usually entails. Note also that the choice to use HTTP instead of HTTPS here is very intentional: HTTPS uses too much memory and processing power, and I'm simply not concerned about anyone snooping on the counter communicating with its microservice. All that's being passed is a number with no attached meaning. The microservice is expected to make all its outbound requests for external data via HTTPS.
 
 
 ### Number Microservices
@@ -572,6 +584,8 @@ They say a project is never finished, only abandoned. I have several improvement
 
     *   It only supports double-clicks, not multi-clicks ([#50](https://github.com/mathertel/OneButton/issues/50)).
     *   It can't handle interrupts reliably ([#89](https://github.com/mathertel/OneButton/issues/89), [#28](https://github.com/mathertel/OneButton/issues/28)).
+
+*   Abstract the process of saving parameters from the [config webserver](#config-webserver). Currently, I have to track the size of each variable manually. We could also cycle where we write to EEPROM to reduce memory wear, just to be perfectionist.
 
 *   Swap in an [IN-15A](http://www.tube-tester.com/sites/nixie/data/in-15a.htm) or [IN-15B](http://www.tube-tester.com/sites/nixie/data/IN-15B/in-15b.htm) tube. I'm particularly interested in the +/− symbols on the IN-15A. Might be neat to use them to track e.g. number of lines added/deleted in a [git working directory](https://medium.com/hackernoon/understanding-git-index-4821a0765cf).
 
