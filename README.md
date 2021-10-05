@@ -538,10 +538,14 @@ One of the neat parts of this project was getting to design and code a variety o
 
 ### Hello World
 
+<img src="images/animations/hello.gif">
+
 On startup, the counter says "hello" in [leetspeak](https://en.wikipedia.org/wiki/Leet): 83770. The greeting remains displayed while the counter connects to Wi-Fi and queries the microservice for its first number. The transition animation is then used to transform 83770 into the returned number. Pretty straight-forward.
 
 
 ### Number Transition
+
+<img src="images/animations/transition.gif">
 
 One of the unique aspects of nixie tubes is their semi-three-dimensional nature. Each nixie tube has a stack of digits in it. Digits near the bottom (back) of the stack appear noticeably farther away than digits near the top (front). When a number towards the back of the stack is lit, it is somewhat obscured by the unlit segments in front of it. Overall, this creates a sense of dimensionality that is absent from [multi-segment displays](https://en.wikipedia.org/wiki/Sixteen-segment_display). When thinking about how to transition the display to a new number, I wanted to use that transition as an opportunity to highlight this dimensionality. 
 
@@ -552,6 +556,8 @@ From back to front, the digit stack order of IN-12 tubes is as follows: 1, 6, 2,
 
 ### IP Address Scroll
 
+<img src="images/animations/ip-scroll.gif">
+
 When the button is double-clicked, the counter will show its IPv4 address within the local network. If someone on the same network visits that IP address via HTTP in their browser, they'll see the counter's [configuration page](#config-webserver). The IN-12B tubes contain a dot cathode, which is perfect for IP addresses. 
 
 This IP address is often [longer than six digits](https://en.wikipedia.org/wiki/Reserved_IP_addresses), so it may not be possible to show it all at once. I had to add a scroll animation to fix that issue. This animation is similar to the old HTML [marquee element](https://en.wikipedia.org/wiki/Marquee_element) with the "alternate" behavior to enable bouncing text. The six-digit window starts by showing the first six digits of the IP address. It then scrolls to the right until it reaches the end of the IP address, rests there a moment, scrolls back to the left, rests, and repeats.
@@ -560,6 +566,8 @@ It's worthwhile noting that when the counter is in the [Wi-Fi Manager](#wi-fi-ma
 
 
 ### Screensaver
+
+<img src="images/animations/screensaver.gif">
 
 Nixie tubes tend to develop “cathode poisoning” on digits that are not in regular use. When a nixie digit is lit, it sputters material, which sticks to the glass envelope, causing it to darken, and to other digits, causing them to be lit unevenly. It's possible to [detect cathode poisoning](https://surfncircuits.com/2019/04/06/eliminating-nixie-tube-cathode-poisoning-bi-quinary-digit-ghosting-and-heavily-oxidized-leads/) before it becomes visible and to heal it by [burning it away](http://www.tube-tester.com/sites/nixie/different/cathode%20poisoning/cathode-poisoning.htm). It can also be prevented by occasionally cycling through unused digits. This is a great excuse to create a neat "screensaver" animation.
 

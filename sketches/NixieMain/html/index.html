@@ -27,12 +27,28 @@
             font-weight: 600;
             font-family: 'Nixie One', sans-serif;
         }
+        hr {
+            margin: 0;
+            border: 0;
+            border-width: 3px;
+            border-bottom: 3px solid #ccc;
+            margin-bottom: 1.5em;
+        }
         div {
             text-align: left;
         }
         label {
             display: block;
             margin: 0 0 0.5rem 1rem;
+        }
+        input[type=checkbox] + label {
+            display: inline-block;
+            margin-left: 0;
+            padding-left: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        input[type=checkbox] {
+            margin-left: 1rem;
         }
         input[type=text],
         input[type=number] {
@@ -64,6 +80,12 @@
             <input type="number" name="port" id="port" value="%s" min="1" max="65535" required/>
             <label for="path">Path</label>
             <input type="text" name="path" id="path" value="%s" maxlength="254" required/>
+            <hr>
+            <label for="screensaver">Screensaver interval (milliseconds)</label>
+            <input type="number" name="screensaver" id="screensaver" value="%s" min="1" max="4294967295" required/>
+            <hr>
+            <input type="checkbox" id="webserver" name="webserver" %s>
+            <label for="webserver">Always run webserver</label>
         </div>
         <input type="submit" value="Update"/>
     </form>
