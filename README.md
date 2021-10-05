@@ -615,3 +615,11 @@ Therefore, I consider the work that I did for this project be entirely my own. I
 * [MIT License](LICENSE) for the code
 
 In short, you can do whatever you'd like with my code and designs, but (1) I take no responsibility if something goes wrong, and (2) it would be nice if you could credit me and link back to this project. Note that the license terms for the libraries and components used in this project may differ from my original contributions to the final product.
+
+
+
+## Still Here?
+
+Thanks for sticking around and/or scrolling through. See you next project!
+
+<img src="images/stinger.jpg">
