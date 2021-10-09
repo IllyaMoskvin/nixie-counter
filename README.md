@@ -488,6 +488,14 @@ Code | Error | Comment
 3 | ERROR_RESPONSE_UNEXPECTED | Response is not `HTTP/1.1 200 OK`.
 4 | ERROR_RESPONSE_INVALID | Cannot find end of header in response.
 
+Most likely, you will only ever see the first error. If you do, here are some things to check:
+
+1.  Is the [Python microservice](#number-microservices) running?
+
+1.  Are the API host, port, and path in the [config webserver](#config-webserver) correct?
+
+1.  Is the counter on the [correct Wi-Fi network](#wi-fi-manager)?
+
 
 ### Wi-Fi Manager
 
