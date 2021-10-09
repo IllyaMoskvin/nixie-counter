@@ -1,8 +1,8 @@
-# aic-nixie
+# nixie-counter
 
-> An ESP8266-based 6-digit IN-12B nixie counter that queries the Art Institute of Chicago's API
+> An ESP8266-based 6-digit IN-12B nixie counter that queries Python APIs
 
-<a href="https://raw.githubusercontent.com/IllyaMoskvin/aic-nixie/master/images/photos/00-hero.jpg">
+<a href="https://raw.githubusercontent.com/IllyaMoskvin/nixie-counter/master/images/photos/00-hero.jpg">
     <img src="images/photos/00-hero-tn.jpg">
 </a>
 
@@ -12,7 +12,7 @@ Long story short, what you find here is the end result. My nixie counter connect
 
 Over time, what this project represents has shifted in practice to be less about the Art Institute's data and more about my own workflows. For example, yes, it can display [artworks updated since 9 AM CT](server/aic.py), but it can also display the [current word count of a Markdown file](server/wc.py). But the core idea of having a physical manifestation of some digital count with an emphasis on measuring work has stayed constant.
 
-This repository contains a write-up of the project, along with designs for the enclosure and all related code. This was my first woodworking and Arduino project. As such, this write-up is written from the perspective of a beginner. Some parts here may seem obvious to more seasoned makers. If you spot any mistakes or misconceptions, please [open an issue](https://github.com/IllyaMoskvin/aic-nixie/issues).
+This repository contains a write-up of the project, along with designs for the enclosure and all related code. This was my first woodworking and Arduino project. As such, this write-up is written from the perspective of a beginner. Some parts here may seem obvious to more seasoned makers. If you spot any mistakes or misconceptions, please [open an issue](https://github.com/IllyaMoskvin/nixie-counter/issues).
 
 Lastly, I'll add that this write-up itself turned into a project. If you are not aware, there is a strong tradition among makers of keeping [project logs](https://hackaday.io/discover). I've often felt that I'm being neglectful by not writing enough about my side projects. I've definitely overcompensated for that here. My goal was to document "literally everything" about this project in a retrospective. I think I succeeded, but the result is on the long side. This write-up is for me, but I hope you find something useful here, too.
 
@@ -59,51 +59,51 @@ _Psst! If you only have time for one thing, go check out the [animations](#anima
 <table>
     <tr>
         <td>
-            <a href="https://raw.githubusercontent.com/IllyaMoskvin/aic-nixie/master/images/photos/01-front.jpg">
+            <a href="https://raw.githubusercontent.com/IllyaMoskvin/nixie-counter/master/images/photos/01-front.jpg">
                 <img src="images/photos/01-front-tn.jpg">
             </a>
         </td>
         <td>
-            <a href="https://raw.githubusercontent.com/IllyaMoskvin/aic-nixie/master/images/photos/02-three-quarters.jpg">
+            <a href="https://raw.githubusercontent.com/IllyaMoskvin/nixie-counter/master/images/photos/02-three-quarters.jpg">
                 <img src="images/photos/02-three-quarters-tn.jpg">
             </a>
         </td>
         <td>
-            <a href="https://raw.githubusercontent.com/IllyaMoskvin/aic-nixie/master/images/photos/03-side.jpg">
+            <a href="https://raw.githubusercontent.com/IllyaMoskvin/nixie-counter/master/images/photos/03-side.jpg">
                 <img src="images/photos/03-side-tn.jpg">
             </a>
         </td>
     </tr>
     <tr>
         <td>
-            <a href="https://raw.githubusercontent.com/IllyaMoskvin/aic-nixie/master/images/photos/04-back.jpg">
+            <a href="https://raw.githubusercontent.com/IllyaMoskvin/nixie-counter/master/images/photos/04-back.jpg">
                 <img src="images/photos/04-back-tn.jpg">
             </a>
         </td>
         <td>
-            <a href="https://raw.githubusercontent.com/IllyaMoskvin/aic-nixie/master/images/photos/05-bottom.jpg">
+            <a href="https://raw.githubusercontent.com/IllyaMoskvin/nixie-counter/master/images/photos/05-bottom.jpg">
                 <img src="images/photos/05-bottom-tn.jpg">
             </a>
         </td>
         <td>
-            <a href="https://raw.githubusercontent.com/IllyaMoskvin/aic-nixie/master/images/photos/06-button.jpg">
+            <a href="https://raw.githubusercontent.com/IllyaMoskvin/nixie-counter/master/images/photos/06-button.jpg">
                 <img src="images/photos/06-button-tn.jpg">
             </a>
         </td>
     </tr>
     <tr>
         <td>
-            <a href="https://raw.githubusercontent.com/IllyaMoskvin/aic-nixie/master/images/photos/07-lid-off.jpg">
+            <a href="https://raw.githubusercontent.com/IllyaMoskvin/nixie-counter/master/images/photos/07-lid-off.jpg">
                 <img src="images/photos/07-lid-off-tn.jpg">
             </a>
         </td>
         <td>
-            <a href="https://raw.githubusercontent.com/IllyaMoskvin/aic-nixie/master/images/photos/08-inside-left.jpg">
+            <a href="https://raw.githubusercontent.com/IllyaMoskvin/nixie-counter/master/images/photos/08-inside-left.jpg">
                 <img src="images/photos/08-inside-left-tn.jpg">
             </a>
         </td>
         <td>
-            <a href="https://raw.githubusercontent.com/IllyaMoskvin/aic-nixie/master/images/photos/09-inside-right.jpg">
+            <a href="https://raw.githubusercontent.com/IllyaMoskvin/nixie-counter/master/images/photos/09-inside-right.jpg">
                 <img src="images/photos/09-inside-right-tn.jpg">
             </a>
         </td>
@@ -234,24 +234,24 @@ I neglected to take in-progress photos while making the counter, but these shoul
 <table>
     <tr>
         <td>
-            <a href="https://raw.githubusercontent.com/IllyaMoskvin/aic-nixie/master/images/photos/07-lid-off.jpg">
+            <a href="https://raw.githubusercontent.com/IllyaMoskvin/nixie-counter/master/images/photos/07-lid-off.jpg">
                 <img src="images/photos/07-lid-off-tn.jpg">
             </a>
         </td>
         <td>
-            <a href="https://raw.githubusercontent.com/IllyaMoskvin/aic-nixie/master/images/photos/10-nixie-mounts.jpg">
+            <a href="https://raw.githubusercontent.com/IllyaMoskvin/nixie-counter/master/images/photos/10-nixie-mounts.jpg">
                 <img src="images/photos/10-nixie-mounts-tn.jpg">
             </a>
         </td>
     </tr>
     <tr>
         <td>
-            <a href="https://raw.githubusercontent.com/IllyaMoskvin/aic-nixie/master/images/photos/11-acrylic-plate.jpg">
+            <a href="https://raw.githubusercontent.com/IllyaMoskvin/nixie-counter/master/images/photos/11-acrylic-plate.jpg">
                 <img src="images/photos/11-acrylic-plate-tn.jpg">
             </a>
         </td>
         <td>
-            <a href="https://raw.githubusercontent.com/IllyaMoskvin/aic-nixie/master/images/photos/12-screw-indents.jpg">
+            <a href="https://raw.githubusercontent.com/IllyaMoskvin/nixie-counter/master/images/photos/12-screw-indents.jpg">
                 <img src="images/photos/12-screw-indents-tn.jpg">
             </a>
         </td>
@@ -315,7 +315,7 @@ There's also a few soldered and heat-shrinked connections here: wire splices and
 
 I've added a schematic above, made with [KiCad](https://www.kicad.org/). Electrically, it's very straight-forward. I recognize that it's unconventional, but I decided to show Mini-PV connectors in this schematic, and I labeled each connection with the length of the actual wire used in my final build. Usually, this sort of skeuomorphic information would be omitted or represented with a separate [wiring diagram](https://en.wikipedia.org/wiki/Wiring_diagram), but I ran out of patience while [trying to learn Fritzing](https://hackaday.com/2016/10/11/creating-a-pcb-in-everything-friends-dont-let-friends-use-fritzing/), and it didn't seem worthwhile to [continue down that path](https://forum.arduino.cc/t/why-all-the-hate-for-fritzing/692288). Together with the photos in this article, this should be enough.
 
-I did do one other thing that's probably not ideal: I connected all the grounds for the components in serial, rather than connecting them all to a common grounding terminal. So far, it hasn't caused issues, but I'm sure it has the potential to do so. If anyone knows for sure whether it's fine to do this, or if it should be avoided, please [open an issue](https://github.com/IllyaMoskvin/aic-nixie/issues).
+I did do one other thing that's probably not ideal: I connected all the grounds for the components in serial, rather than connecting them all to a common grounding terminal. So far, it hasn't caused issues, but I'm sure it has the potential to do so. If anyone knows for sure whether it's fine to do this, or if it should be avoided, please [open an issue](https://github.com/IllyaMoskvin/nixie-counter/issues).
 
 
 ### miTEC MSW-12A01 Button
@@ -397,7 +397,7 @@ For this project, I've included the board core and libraries it needs as [Git su
     1.  Clone this repo wherever you clone code:
 
         ```bash
-        git clone git@github.com:IllyaMoskvin/aic-nixie.git
+        git clone git@github.com:IllyaMoskvin/nixie-counter.git
         ```
 
     1.  Inside your repo, recursively initialize all Git submodules in the `libraries` directory:
