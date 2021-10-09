@@ -6,7 +6,7 @@
     <img src="images/photos/00-hero-tn.jpg">
 </a>
 
-While working as a web developer at the Art Institue of Chicago, I got the idea that it would be neat to have some physical manifestation of the work we were doing. My work at the time focused on [interconnecting systems](https://mw19.mwconf.org/paper/building-a-data-hub-microservices-apis-and-system-integration-at-the-art-institute-of-chicago/) and creating a [public API](https://www.artic.edu/open-access/public-api), so I decided to make a counter that would show the number of artworks that have been updated in our API each day. Further, I wanted the counter to be a piece of art in its own right. It had to feel high quality, analog, and hand made.
+While working as a web developer at the [Art Institue of Chicago](https://www.artic.edu/), I got the idea that it would be neat to have some physical manifestation of the work we were doing. My work at the time focused on [interconnecting systems](https://mw19.mwconf.org/paper/building-a-data-hub-microservices-apis-and-system-integration-at-the-art-institute-of-chicago/) and creating a [public API](https://www.artic.edu/open-access/public-api), so I decided to make a counter that would show the number of artworks that have been updated in our API each day. Further, I wanted the counter to be a piece of art in its own right. It had to feel high quality, analog, and hand made.
 
 Long story short, what you find here is the end result. My nixie counter connects to Wi-Fi using an ESP8266. It queries a Python microservice that's running on e.g. my desktop computer and displays whatever number gets returned. This allows me to easily change what the counter displays, without having to reflash it.
 
@@ -14,7 +14,9 @@ Over time, what this project represents has shifted in practice to be less about
 
 This repository contains a write-up of the project, along with designs for the enclosure and all related code. This was my first woodworking and Arduino project. As such, this write-up is written from the perspective of a beginner. Some parts here may seem obvious to more seasoned makers. If you spot any mistakes or misconceptions, please [open an issue](https://github.com/IllyaMoskvin/aic-nixie/issues).
 
-Lastly, I'll add that this write-up itself turned into a project. If you are not aware, there is a strong tradition among makers of keeping [project logs](https://hackaday.io/discover). I've often felt that I'm being neglectful by not writing enough about my side projects. I've definitely overcompensated for that here. My goal was to document "literally everything" about this project in a retrospective. I think I succeeded, but the result is on the long side. This is for me, but I hope you find something useful here, too.
+Lastly, I'll add that this write-up itself turned into a project. If you are not aware, there is a strong tradition among makers of keeping [project logs](https://hackaday.io/discover). I've often felt that I'm being neglectful by not writing enough about my side projects. I've definitely overcompensated for that here. My goal was to document "literally everything" about this project in a retrospective. I think I succeeded, but the result is on the long side. This write-up is for me, but I hope you find something useful here, too.
+
+_Psst! If you only have time for one thing, go check out the [animations](#animations)._
 
 
 
@@ -157,7 +159,7 @@ This counter uses [IN-12B](http://www.swissnixie.com/tubes/IN12B/) tubes, made i
 
 Nixies haven't really been mass-produced since the 80s, but there's still a fair bit of "new old stock" (NOS) kicking around, and there's a few people trying to revive the art of manufacturing these. There's a definite niche for nixies in industrial art projects like this one. As a result, there's currently a lot of knowledge online about nixies.
 
-For this project, I wanted to use [end-view tubes](http://www.tube-tester.com/sites/nixie/trade03-nixie-tubes.htm) that were cheap and had [good community support](https://hackaday.io/search?term=nixie). Originally, I looked at the [IN-1](http://www.tube-tester.com/sites/nixie/data/in-1/in-1.htm) or the [IN-12A](http://www.tube-tester.com/sites/nixie/data/in-12a.htm). Once I found Doayee's driver, [IN-12B](http://www.tube-tester.com/sites/nixie/data/in-12b.htm) was an easy choice. Having a decimal point was an unexpected bonus, which allowed me to show IP addresses via the nixies.
+For this project, I wanted to use [end-view tubes](http://www.tube-tester.com/sites/nixie/trade03-nixie-tubes.htm) that were cheap and had [good community support](https://hackaday.io/search?term=nixie). Originally, I looked at the [IN-1](http://www.tube-tester.com/sites/nixie/data/in-1/in-1.htm) or the [IN-12A](http://www.tube-tester.com/sites/nixie/data/in-12a.htm). Once I found Doayee's driver, [IN-12B](http://www.tube-tester.com/sites/nixie/data/in-12b.htm) was an easy choice. Having a decimal point was an unexpected bonus, which allowed me to [show IP addresses](#ip-address-scroll) via the nixies.
 
 
 ### Doayee's Nixie Driver
@@ -324,7 +326,7 @@ The button was the last component to be completed. Originally, this counter was 
 
 I decided to scrap the original button and re-evaluate my options. Because the counter was only going to have one button, it had to be special. The action of pressing it had to feel satisfying, even if it didn't need to be pressed often as part of normal operation. I wanted it to feel "clicky" and look good. However, it also had to fit within the 12mm wide through-hole in the counter, and its nut had to be small enough to fit within the 5/8" Forstner hole inside when tightened.
 
-The solution came from the electronic cigarette community. [Kudzu Mods](https://www.facebook.com/kudzumods/) released a video called [Mitec vs. Domed vs. Fat Daddy Fire Buttons](https://www.youtube.com/watch?v=drg0IvyCDBw), where they disassembled and compared different types of buttons. Unfortunately, it seems that video is now private. As a stand-in, I included two photos of what miTEC buttons look like when disassembled in the collage above. These photos were shared by [Scott's Mods](http://scottsmods.com/) in a [Reddit thread](https://old.reddit.com/r/OpenPV/comments/367l32/mitech_msw1202_breakdown/). Anyway, seeing the miTEC buttons disassembled like that gave me the idea to replace the original plunger with a hand-carved wooden one.
+The solution came from the electronic cigarette modding community. [Kudzu Mods](https://www.facebook.com/kudzumods/) released a video called [Mitec vs. Domed vs. Fat Daddy Fire Buttons](https://www.youtube.com/watch?v=drg0IvyCDBw), where they disassembled and compared different types of buttons. Unfortunately, it seems that video is now private. As a stand-in, I included two photos of what miTEC buttons look like when disassembled in the collage above. These photos were shared by [Scott's Mods](http://scottsmods.com/) in a [Reddit thread](https://old.reddit.com/r/OpenPV/comments/367l32/mitech_msw1202_breakdown/). Anyway, seeing the miTEC buttons disassembled like that gave me the idea to replace the original plunger with a hand-carved wooden one.
 
 Disassembly is a simple process: apply heat to bottom of button evenly, until the black tack loosens slightly. Apply moderate pressure to the plunger, and the whole assembly will pop out from the back. To reseal, just add some superglue around the edge and put it back. I didn't have a heatgun handy, so I just put it in a frying pan with the tack side facing down and heated it on the stove top for a minute or so, until the tack loosened.
 
@@ -332,7 +334,7 @@ I like this design. The tactile button mounted on the PCB is very clicky and has
 
 I carved the wooden plunger by hand by cutting a small square of walnut, sanding it down into a circle, and filing it into a flanged shape. I finished it with the same steps as rest of the counter. I chose an area of walnut that had many small pores to make it more visually interesting. I think it might have been one of the corner scraps that got cut off the sides.
 
-Before installing the new plunger, however, I decided to see if I could make the button match the 2.1mm barrel jack. The [MSW-12A01](https://www.whr.hk/catalogue/Push_Button_cat.pdf) buttons are dyed anodized aluminum. When I got this button, it was coppery-yellow in color, as shown in the top-left photo of the collage above.  MiTEC also makes the [MSW-1201](https://www.amazon.com/MiTEC-MSW-1201-Stainless-Steel-Button/dp/B01LW32MM7), which is stainless steel, but at the time when I was ordering supplies, it was not available domestically.
+Before installing the new plunger, however, I decided to see if I could make the button match the 2.1mm barrel jack. The [MSW-12A01](https://www.whr.hk/catalogue/Push_Button_cat.pdf) buttons are dyed anodized aluminum. When I got this button, it was coppery-yellow in color, as shown in the top-left photo of the collage above. MiTEC also makes the [MSW-1201](https://www.amazon.com/MiTEC-MSW-1201-Stainless-Steel-Button/dp/B01LW32MM7), which is stainless steel, but at the time when I was ordering supplies, it was not available domestically.
 
 So working with what I had on hand, I used [oven cleaner](https://www.youtube.com/watch?v=bNAB45zQUtk) (sodium hydroxide) to strip the anodization from the button while it was disassembled. Then, I used some wet 3000 grit sandpaper to polish the aluminum, and reassembled the button.
 
@@ -398,7 +400,7 @@ For this project, I've included the board core and libraries it needs as [Git su
         git clone git@github.com:IllyaMoskvin/aic-nixie.git
         ```
 
-    1.  Inside your repo, recursively initialize all Git submodules: in the `libraries` directory:
+    1.  Inside your repo, recursively initialize all Git submodules in the `libraries` directory:
 
         ```bash
         git submodule update --init --recursive -- libraries/
@@ -475,7 +477,7 @@ Here are some errors you might see during compilation, along with their most lik
 
 If the counter is stuck on 83770, it's in a restart loop because it's encountering an exception before it can retrieve the first number. Most likely, this is happening because you used the wrong version of the ESP8266 board core. See [Requirements](#requirements).
 
-You can try using the [Serial Monitor](https://www.arduino.cc/en/Tutorial/getting-started-with-ide-v2/ide-v2-serial-monitor) and the [ESP Exception Decoder](https://github.com/me-no-dev/EspExceptionDecoder) to [debug the exception](https://arduino-esp8266.readthedocs.io/en/latest/faq/a02-my-esp-crashes.html) being thrown. 
+You can try using the [Serial Monitor](https://www.arduino.cc/en/Tutorial/getting-started-with-ide-v2/ide-v2-serial-monitor) and the [ESP Exception Decoder](https://github.com/me-no-dev/EspExceptionDecoder) to [debug the exception](https://arduino-esp8266.readthedocs.io/en/latest/faq/a02-my-esp-crashes.html) being thrown.
 
 Lastly, if the counter runs into issues while attempting to query the API, it will show an error code. These error codes are displayed left-aligned, while normal numbers are displayed right-aligned. At the moment, they are all single-digit numbers, so there should be no confusion. Here are the current error codes:
 
@@ -549,7 +551,7 @@ On startup, the counter says "hello" in [leetspeak](https://en.wikipedia.org/wik
 
 <img src="images/animations/transition.gif">
 
-One of the unique aspects of nixie tubes is their semi-three-dimensional nature. Each nixie tube has a stack of digits in it. Digits near the bottom (back) of the stack appear noticeably farther away than digits near the top (front). When a number towards the back of the stack is lit, it is somewhat obscured by the unlit segments in front of it. Overall, this creates a sense of dimensionality that is absent from [multi-segment displays](https://en.wikipedia.org/wiki/Sixteen-segment_display). When thinking about how to transition the display to a new number, I wanted to use that transition as an opportunity to highlight this dimensionality. 
+One of the unique aspects of nixie tubes is their semi-three-dimensional nature. Each nixie tube has a stack of digits in it. Digits near the bottom (back) of the stack appear noticeably farther away than digits near the top (front). When a number towards the back of the stack is lit, it is somewhat obscured by the unlit segments in front of it. Overall, this creates a sense of dimensionality that is absent from [multi-segment displays](https://en.wikipedia.org/wiki/Sixteen-segment_display). When thinking about how to transition the display to a new number, I wanted to use that transition as an opportunity to highlight this dimensionality.
 
 When the counter queries a microservice, it saves the response as the next number that should be displayed. Every 75 milliseconds, it will morph the currently displayed number one step towards the next number. Starting from the left, it finds the first tube that is different between the current number and the next. It takes the digits in that place from both numbers and compares their positions in the digit stack. Finally, it advances the current digit in that place one step along the digit stack towards the next digit. By doing this repeatedly, we create an animation wherein numbers seem to sink into and rise out of the tubes.
 
@@ -560,7 +562,7 @@ From back to front, the digit stack order of IN-12 tubes is as follows: 1, 6, 2,
 
 <img src="images/animations/ip-scroll.gif">
 
-When the button is double-clicked, the counter will show its IPv4 address within the local network. If someone on the same network visits that IP address via HTTP in their browser, they'll see the counter's [configuration page](#config-webserver). The IN-12B tubes contain a dot cathode, which is perfect for IP addresses. 
+When the button is double-clicked, the counter will show its IPv4 address within the local network. If someone on the same network visits that IP address via HTTP in their browser, they'll see the counter's [configuration page](#config-webserver). The IN-12B tubes contain a dot cathode, which is perfect for IP addresses.
 
 This IP address is often [longer than six digits](https://en.wikipedia.org/wiki/Reserved_IP_addresses), so it may not be possible to show it all at once. I had to add a scroll animation to fix that issue. This animation is similar to the old HTML [marquee element](https://en.wikipedia.org/wiki/Marquee_element) with the "alternate" behavior to enable bouncing text. The six-digit window starts by showing the first six digits of the IP address. It then scrolls to the right until it reaches the end of the IP address, rests there a moment, scrolls back to the left, rests, and repeats.
 
@@ -588,7 +590,7 @@ They say a project is never finished, only abandoned. I have several improvement
     *   Sleeve the cable with cloth or paracord. Or get a pre-sleeved cable from e.g. [VintageWire](https://www.etsy.com/listing/265642948/riverbed-cotton-cloth-covered-wire-8-ft).
     *   Use a nicer on/off switch. I bought vintage [Hubbell No. 275 switches](https://www.etsy.com/listing/896312666/bakelite-lamp-cord-onoff-switches) that would be perfect here.
     *   Use a nicer 5.5mm x 2.1mm barrel plug. Maybe the [MDFLY CMP-CT0027](https://www.mdfly.com/products/5-5mm-x-2-1mm-5-5-2-1-dc-power-barrel-plug-metal-free-hanging-pack-of-2.html) or the [Switchcraft 762](https://www.switchcraft.com/Product.aspx?ID=7005) or [762Z](https://www.switchcraft.com/Product.aspx?ID=9403).
-    *   Modify an AC adapter to accept sleeved twisted pair wiring ([example](https://www.alibaba.com/product-detail/Electrical-Fabric-cover-Wire-cord-set_1600057270947.html)). 
+    *   Modify an AC adapter to accept sleeved twisted pair wiring ([example](https://www.alibaba.com/product-detail/Electrical-Fabric-cover-Wire-cord-set_1600057270947.html)).
 
 *   Hard-fork [mathertel/OneButton](https://github.com/mathertel/OneButton). Or just rewrite it from scratch. I'm grateful to its author for creating and maintaining this library, but I've run into a few issues with it while making this project. These issues are fundamental to the fact that it is a finite-state machine, which is in turn a [fundamental aspect of this library](http://www.mathertel.de/Arduino/OneButtonLibrary.aspx).
 
@@ -599,7 +601,9 @@ They say a project is never finished, only abandoned. I have several improvement
 
 *   Swap in an [IN-15A](http://www.tube-tester.com/sites/nixie/data/in-15a.htm) or [IN-15B](http://www.tube-tester.com/sites/nixie/data/IN-15B/in-15b.htm) tube. I'm particularly interested in the +/− symbols on the IN-15A. Might be neat to use them to track e.g. number of lines added/deleted in a [git working directory](https://medium.com/hackernoon/understanding-git-index-4821a0765cf).
 
-*   Add a temperature sensor (e.g. [TMP36](https://learn.adafruit.com/tmp36-temperature-sensor/using-a-temp-sensor)). This would be a temporary change. I neglected to add any vent holes to the enclosure. I did try to pick out components that ran cool, and there is some airflow through the tube cut-outs in the front face, but it'd be nice to know how hot it actually gets in there. 
+*   Add a temperature sensor (e.g. [TMP36](https://learn.adafruit.com/tmp36-temperature-sensor/using-a-temp-sensor)). This would be a temporary change. I neglected to add any vent holes to the enclosure. I did try to pick out components that ran cool, and there is some airflow through the tube cut-outs in the front face, but it'd be nice to know how hot it actually gets in there.
+
+*   Give it a clock mode. It was always meant to be a nixie _counter_, not a nixie _clock_, but why not?
 
 *   Use the RGB LEDs on the Doayee driver for backlighting. For that [100% Completion](https://tvtropes.org/pmwiki/pmwiki.php/Main/HundredPercentCompletion) feeling.
 
