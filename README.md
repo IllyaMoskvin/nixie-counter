@@ -506,9 +506,13 @@ If you need to change the Wi-Fi network, you can also launch the WiFiManager at 
 
 ### Config Webserver
 
+<img src="images/config-webserver.png">
+
 If you double-click the counter's button, it will launch a webserver with a configuration webpage. It'll also [show its local IP address](#ip-address-scroll) via the nixies. If you are connected to the same network as the counter, you can configure it by navigating to this address in your browser.
 
-Via this webpage, you can set the host, port, and path that it will query to get what number it needs to display. These settings get saved to EEPROM. When the counter is restarted, it reads these values from EEPROM, or falls back to defaults. Because we only write to EEPROM when the values get updated, we don't need to worry about [memory wear](https://design.goeszen.com/mitigating-flash-wear-on-the-esp8266-or-any-other-microcontroller-with-flash.html).
+Via this webpage, you can set the host, port, and path that it will query to get what number it needs to display. You can also set how often the [screensaver](#screensaver) runs and whether the config webserver should always be running, rather than only when its IP is displayed.
+
+These settings get saved to EEPROM. When the counter is restarted, it reads these values from EEPROM, or falls back to defaults. Because we only write to EEPROM when the values get updated, we don't need to worry about [memory wear](https://design.goeszen.com/mitigating-flash-wear-on-the-esp8266-or-any-other-microcontroller-with-flash.html).
 
 The source code for the two routes on the server (`/` and `/update`) is hardcoded into the sketch. They are minified to reduce the space required. For my workflow, I keep two original files, [index.html](sketches/NixieMain/html/index.html) and [update.html](sketches/NixieMain/html/update.html). I make my edits in those files, and run them through [minify.sh](sketches/NixieMain/html/minify.sh), for example:
 
